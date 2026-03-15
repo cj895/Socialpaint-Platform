@@ -1,29 +1,30 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { Menu } from 'lucide-react'
-import Sidebar from './Sidebar'
+import NavRail from './NavRail'
+import SlidePanel from './SlidePanel'
 
 export default function Layout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [panelView, setPanelView] = useState<'team' | 'settings'>('team')
+
+  const openPanel = () => setPanelOpen(true)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="min-h-screen bg-paper">
+      <NavRail onUserClick={openPanel} />
 
-      {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-[rgba(35,31,35,0.08)] px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setSidebarOpen(true)} className="p-1">
-          <Menu size={20} />
-        </button>
-        <span className="text-sm" style={{ fontWeight: 500 }}>SocialPaint</span>
-      </div>
-
-      {/* Main content */}
-      <main className="lg:ml-[240px] pt-14 lg:pt-0 min-h-screen">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-6 md:py-8">
+      <main className="lg:ml-16 pb-16 lg:pb-0 min-h-screen">
+        <div className="max-w-[1280px] mx-auto px-5 md:px-12 py-6 md:py-10">
           <Outlet />
         </div>
       </main>
+
+      <SlidePanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        view={panelView}
+        onViewChange={setPanelView}
+      />
     </div>
   )
 }

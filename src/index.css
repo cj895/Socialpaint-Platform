@@ -1,24 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #f7f6f5;
-  --color-card: #ececec;
-  --color-white: #ffffff;
-  --color-near-black: #231f23;
-  --color-dark-bg: #1a171a;
+  --color-paper: #fafaf9;
+  --color-surface: #f3f3f2;
+  --color-ink: #0f0f0f;
+  --color-rail: #0f0f0f;
+  --color-accent: #2d5bf6;
+  --color-accent-light: rgba(45, 91, 246, 0.06);
+  --color-signal-green: #1a8754;
+  --color-signal-red: #dc3545;
+  --color-signal-amber: #d97706;
+  --color-border: rgba(15, 15, 15, 0.06);
+  --color-border-hover: rgba(15, 15, 15, 0.12);
+  --color-muted: rgba(15, 15, 15, 0.45);
+  --color-subtle: rgba(15, 15, 15, 0.03);
 
-  --color-brand-intelligence: #cebffa;
-  --color-content-studio: #ccfdcf;
-  --color-brand-guard: #d7e9ff;
-  --color-analytics: #f4e7c7;
-  --color-generation-studio: #ffe1d6;
-
-  --color-coral: #ed7472;
-  --color-success: #4a7c59;
-  --color-error: #e94560;
-
-  --font-mono: 'Fragment Mono', monospace;
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Fragment Mono', ui-monospace, monospace;
 }
 
 * {
@@ -29,26 +27,58 @@
 
 html {
   font-family: var(--font-sans);
+  font-feature-settings: 'cv01', 'cv02', 'ss01';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.57;
+  color: #0f0f0f;
 }
 
 body {
-  background-color: #f7f6f5;
-  color: #231f23;
+  background-color: #fafaf9;
 }
 
-.font-fragment {
-  font-family: 'Fragment Mono', monospace;
+.font-mono {
+  font-family: 'Fragment Mono', ui-monospace, monospace;
+}
+
+.caption {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(15, 15, 15, 0.4);
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(35, 31, 35, 0.16);
+  background: rgba(15, 15, 15, 0.1);
   border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 15, 15, 0.2);
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(15, 15, 15, 0.08);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0f0f0f;
+  cursor: pointer;
 }

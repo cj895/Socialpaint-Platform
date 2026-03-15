@@ -1,26 +1,20 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard'
-import BrandIntelligence from './pages/BrandIntelligence'
-import ContentStudio from './pages/ContentStudio'
-import Analytics from './pages/Analytics'
-import BrandGuard from './pages/BrandGuard'
-import GenerationStudio from './pages/GenerationStudio'
-import Team from './pages/Team'
-import Settings from './pages/Settings'
+import Command from './pages/Command'
+import BrandSystem from './pages/BrandSystem'
+import Create from './pages/Create'
+import Pulse from './pages/Pulse'
+import Guard from './pages/Guard'
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <Dashboard /> },
-      { path: '/brand-intelligence', element: <BrandIntelligence /> },
-      { path: '/content-studio', element: <ContentStudio /> },
-      { path: '/analytics', element: <Analytics /> },
-      { path: '/brand-guard', element: <BrandGuard /> },
-      { path: '/generation-studio', element: <GenerationStudio /> },
-      { path: '/team', element: <Team /> },
-      { path: '/settings', element: <Settings /> },
+      { path: '/', element: <Command /> },
+      { path: '/brand-system', element: <BrandSystem /> },
+      { path: '/create', element: <Create /> },
+      { path: '/pulse', element: <Pulse /> },
+      { path: '/guard', element: <Guard /> },
     ],
   },
 ])
