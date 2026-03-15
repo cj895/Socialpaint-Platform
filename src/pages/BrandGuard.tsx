@@ -63,7 +63,6 @@ export default function BrandGuard() {
     setItemStatuses((prev) => ({ ...prev, [id]: status }))
   }
 
-  const expandedItem = flaggedItems.find((i) => i.id === selectedItem) || null
 
   return (
     <div className="min-h-screen bg-[#f7f6f5]">

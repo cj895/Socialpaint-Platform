@@ -1,11 +1,11 @@
 import { motion } from 'motion/react'
 import {
-  BarChart3, TrendingUp, Users, FileImage, ShieldCheck,
+  BarChart3, Users, FileImage, ShieldCheck,
   ArrowUp, ArrowDown,
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
+  Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
 import AnimatedCard from '../components/AnimatedCard'
 import SectionTag from '../components/SectionTag'
@@ -45,8 +45,6 @@ const statCards = [
 ]
 
 export default function Analytics() {
-  const maxFormat = Math.max(...analyticsData.formatBreakdown.map(f => f.count))
-  const maxTeam = Math.max(...analyticsData.teamActivity.map(t => t.count))
   const maxViolation = Math.max(...analyticsData.violationTypes.map(v => v.count))
 
   return (

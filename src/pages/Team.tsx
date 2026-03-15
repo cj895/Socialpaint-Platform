@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { Users, Mail, Shield, Clock, Plus, Search, MoreHorizontal } from 'lucide-react'
+import { Mail, Shield, Clock, Plus, Search, MoreHorizontal } from 'lucide-react'
 import AnimatedCard from '../components/AnimatedCard'
 import SectionTag from '../components/SectionTag'
 import { teamMembers } from '../data/mockData'

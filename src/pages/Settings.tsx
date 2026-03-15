@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { Settings as SettingsIcon, Bell, Shield, Palette, Globe, Key, Save } from 'lucide-react'
+import { Bell, Shield, Palette, Globe, Key, Save } from 'lucide-react'
 import AnimatedCard from '../components/AnimatedCard'
 import SectionTag from '../components/SectionTag'
 
