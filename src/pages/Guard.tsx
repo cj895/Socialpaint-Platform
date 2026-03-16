@@ -25,13 +25,13 @@ const statusLabel: Record<StatusType, string> = {
   dismissed: 'Dismissed',
 }
 
-const statusColorClass: Record<string, string> = {
-  pending: 'text-signal-amber',
-  investigating: 'text-accent',
-  resolved: 'text-signal-green',
-  'resolved-updated': 'text-signal-green',
-  'resolved-exception': 'text-signal-green',
-  dismissed: 'text-muted',
+const STATUS_COLORS: Record<string, string> = {
+  pending: 'var(--color-signal-amber)',
+  investigating: 'var(--color-accent)',
+  resolved: 'var(--color-signal-green)',
+  'resolved-updated': 'var(--color-signal-green)',
+  'resolved-exception': 'var(--color-signal-green)',
+  dismissed: 'var(--color-muted)',
 }
 
 function getDisplayStatus(status: StatusType): string {
@@ -45,10 +45,12 @@ function matchesFilter(status: StatusType, filter: FilterType): boolean {
   return status === filter
 }
 
-function getScoreBadgeClasses(score: number): string {
-  if (score < 60) return 'bg-signal-red/10 text-signal-red'
-  if (score < 70) return 'bg-signal-amber/10 text-signal-amber'
-  return 'bg-surface text-muted'
+function getScoreBadgeStyle(score: number): React.CSSProperties {
+  if (score < 60)
+    return { backgroundColor: 'rgba(220, 53, 69, 0.1)', color: '#dc3545' }
+  if (score < 70)
+    return { backgroundColor: 'rgba(217, 119, 6, 0.1)', color: '#d97706' }
+  return { backgroundColor: 'var(--color-surface)', color: 'var(--color-muted)' }
 }
 
 function getScoreColor(score: number): string {
@@ -121,22 +123,22 @@ export default function Guard() {
   }
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="flex flex-col" style={{ minHeight: 0 }}>
       {/* Page Header */}
-      <div className="px-6 pt-6 pb-0">
+      <div>
         <div className="flex items-start justify-between">
           <div>
-            <h1 style={{ fontSize: 28, fontWeight: 600 }} className="text-ink">Guard</h1>
+            <h1 style={{ fontSize: 28, fontWeight: 600, color: 'var(--color-ink)' }}>Guard</h1>
             <span className="caption">Brand compliance review</span>
           </div>
-          <div className="font-mono text-[13px] text-muted pt-2">
+          <div className="font-mono text-[13px] pt-2" style={{ color: 'var(--color-muted)' }}>
             {flaggedItems.length} total &middot; {pendingCount} pending &middot; {analyticsData.flaggedPercent}% flag rate
           </div>
         </div>
 
         {/* Filter Bar */}
         <div className="mt-5 mb-4">
-          <div className="bg-surface rounded-lg p-1 inline-flex">
+          <div className="rounded-lg p-1 inline-flex" style={{ backgroundColor: 'var(--color-surface)' }}>
             {filterSegments.map((seg) => {
               const isActive = activeFilter === seg.key
               const badge =
@@ -150,9 +152,12 @@ export default function Guard() {
                   className={`px-3 py-1.5 rounded-md text-[13px] transition-all duration-[120ms] cursor-pointer ${
                     isActive
                       ? 'bg-white shadow-sm'
-                      : 'text-muted hover:text-ink'
+                      : 'hover:opacity-80'
                   }`}
-                  style={{ fontWeight: isActive ? 500 : 400 }}
+                  style={{
+                    fontWeight: isActive ? 500 : 400,
+                    color: isActive ? 'var(--color-ink)' : 'var(--color-muted)',
+                  }}
                 >
                   {seg.label}
                   {badge !== null && badge > 0 && (
@@ -166,15 +171,23 @@ export default function Guard() {
       </div>
 
       {/* Triage Split */}
-      <div className="flex" style={{ height: 'calc(100vh - 140px)' }}>
+      <div
+        className="flex flex-1 min-h-0 rounded-lg overflow-hidden"
+        style={{
+          minHeight: 500,
+          maxHeight: 'calc(100vh - 250px)',
+          border: '1px solid var(--color-border)',
+        }}
+      >
         {/* LEFT — List Panel */}
         <div
-          className={`w-full lg:w-[40%] border-r border-border overflow-y-auto ${
+          className={`w-full lg:w-[40%] overflow-y-auto ${
             mobileDetailOpen ? 'hidden lg:block' : 'block'
           }`}
+          style={{ borderRight: '1px solid var(--color-border)' }}
         >
           {filteredItems.length === 0 && (
-            <div className="flex items-center justify-center h-40 text-muted text-[14px]">
+            <div className="flex items-center justify-center h-40 text-[14px]" style={{ color: 'var(--color-muted)' }}>
               No items match this filter
             </div>
           )}
@@ -187,17 +200,22 @@ export default function Guard() {
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item.id)}
-                className={`px-4 py-3.5 border-b border-border cursor-pointer transition-all duration-[120ms] ${
-                  isSelected
-                    ? 'bg-accent-light border-l-2 border-l-accent'
-                    : 'hover:bg-surface/50'
-                }`}
+                className="px-4 py-3.5 cursor-pointer transition-all duration-[120ms]"
+                style={{
+                  borderBottom: '1px solid var(--color-border)',
+                  ...(isSelected
+                    ? {
+                        backgroundColor: 'var(--color-accent-light)',
+                        borderLeft: '2px solid var(--color-accent)',
+                      }
+                    : {}),
+                }}
               >
                 <div className="flex items-center gap-3">
                   {/* Score Badge */}
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center font-mono text-[13px] shrink-0 ${getScoreBadgeClasses(item.score)}`}
-                    style={{ fontWeight: 600 }}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center font-mono text-[13px] shrink-0"
+                    style={{ fontWeight: 600, ...getScoreBadgeStyle(item.score) }}
                   >
                     {item.score}
                   </div>
@@ -205,8 +223,8 @@ export default function Guard() {
                   {/* Center Content */}
                   <div className="flex-1 min-w-0">
                     <div
-                      className="text-[14px] text-ink truncate"
-                      style={{ fontWeight: 500 }}
+                      className="text-[14px] truncate"
+                      style={{ fontWeight: 500, color: 'var(--color-ink)' }}
                     >
                       {item.prompt}
                     </div>
@@ -217,8 +235,11 @@ export default function Guard() {
 
                   {/* Status Badge */}
                   <div
-                    className={`text-[11px] shrink-0 ${statusColorClass[status] || statusColorClass[displayStatus]}`}
-                    style={{ fontWeight: 500 }}
+                    className="text-[11px] shrink-0"
+                    style={{
+                      fontWeight: 500,
+                      color: STATUS_COLORS[status] || STATUS_COLORS[displayStatus],
+                    }}
                   >
                     {statusLabel[status]}
                   </div>
@@ -238,8 +259,8 @@ export default function Guard() {
           {mobileDetailOpen && (
             <button
               onClick={() => setMobileDetailOpen(false)}
-              className="lg:hidden mb-4 text-[13px] text-accent cursor-pointer flex items-center gap-1"
-              style={{ fontWeight: 500 }}
+              className="lg:hidden mb-4 text-[13px] cursor-pointer flex items-center gap-1"
+              style={{ fontWeight: 500, color: 'var(--color-accent)' }}
             >
               <ChevronRight className="rotate-180" size={16} strokeWidth={1.5} />
               Back
@@ -247,7 +268,7 @@ export default function Guard() {
           )}
 
           {!selected ? (
-            <div className="flex items-center justify-center h-full text-muted text-[14px]">
+            <div className="flex items-center justify-center h-full text-[14px]" style={{ color: 'var(--color-muted)' }}>
               Select an item to review
             </div>
           ) : (
@@ -255,10 +276,10 @@ export default function Guard() {
               {/* Detail Header */}
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  <h2 style={{ fontSize: 18, fontWeight: 600 }} className="text-ink">
+                  <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-ink)' }}>
                     {selected.prompt}
                   </h2>
-                  <p className="text-[14px] text-muted mt-1">
+                  <p className="text-[14px] mt-1" style={{ color: 'var(--color-muted)' }}>
                     Generated by {selected.user} &middot; {selected.team} &middot; {selected.date}
                   </p>
                 </div>
@@ -272,13 +293,13 @@ export default function Guard() {
 
               {/* Generated Preview */}
               <div
-                className="bg-surface rounded-xl flex items-center justify-center mb-6"
+                className="rounded-xl flex items-center justify-center mb-6"
                 style={{
                   height: 240,
                   background: 'linear-gradient(135deg, #1B4332 0%, #52796F 50%, #D4A373 100%)',
                 }}
               >
-                <span className="text-white/60 text-[14px]" style={{ fontWeight: 500 }}>
+                <span className="text-[14px]" style={{ fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>
                   Generated Preview
                 </span>
               </div>
@@ -291,29 +312,33 @@ export default function Guard() {
                   return (
                     <div
                       key={idx}
-                      className="bg-surface rounded-xl p-4 border border-border mb-3"
+                      className="rounded-xl p-4 mb-3"
+                      style={{
+                        backgroundColor: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                      }}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle size={16} strokeWidth={1.5} className="text-signal-red" />
-                        <span className="text-[14px] text-ink" style={{ fontWeight: 600 }}>
+                        <AlertTriangle size={16} strokeWidth={1.5} style={{ color: 'var(--color-signal-red)' }} />
+                        <span className="text-[14px]" style={{ fontWeight: 600, color: 'var(--color-ink)' }}>
                           {v.rule}
                         </span>
                       </div>
-                      <p className="text-[14px] text-muted">{v.detail}</p>
+                      <p className="text-[14px]" style={{ color: 'var(--color-muted)' }}>{v.detail}</p>
                       {colors && (
                         <div className="flex items-center gap-2 mt-3">
                           <div
-                            className="w-6 h-6 rounded border border-border"
-                            style={{ backgroundColor: colors.detected }}
+                            className="w-6 h-6 rounded"
+                            style={{ backgroundColor: colors.detected, border: '1px solid var(--color-border)' }}
                             title={colors.detected}
                           />
-                          <ArrowRight size={14} strokeWidth={1.5} className="text-muted" />
+                          <ArrowRight size={14} strokeWidth={1.5} style={{ color: 'var(--color-muted)' }} />
                           <div
-                            className="w-6 h-6 rounded border border-border"
-                            style={{ backgroundColor: colors.brand }}
+                            className="w-6 h-6 rounded"
+                            style={{ backgroundColor: colors.brand, border: '1px solid var(--color-border)' }}
                             title={colors.brand}
                           />
-                          <span className="font-mono text-[11px] text-muted">
+                          <span className="font-mono text-[11px]" style={{ color: 'var(--color-muted)' }}>
                             {colors.detected} → {colors.brand}
                           </span>
                         </div>
@@ -331,13 +356,13 @@ export default function Guard() {
                   <div>
                     <div className="caption mb-2">GENERATED</div>
                     <div
-                      className="bg-surface rounded-xl flex items-center justify-center"
+                      className="rounded-xl flex items-center justify-center"
                       style={{
                         height: 120,
                         background: 'linear-gradient(135deg, #1B4332 0%, #52796F 50%, #D4A373 100%)',
                       }}
                     >
-                      <span className="text-white/50 text-[11px]" style={{ fontWeight: 500 }}>
+                      <span className="text-[11px]" style={{ fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>
                         Preview
                       </span>
                     </div>
@@ -345,22 +370,30 @@ export default function Guard() {
                   {/* Brand Standard */}
                   <div>
                     <div className="caption mb-2">BRAND STANDARD</div>
-                    <div className="bg-surface rounded-xl p-4 border border-border" style={{ height: 120, overflow: 'auto' }}>
+                    <div
+                      className="rounded-xl p-4"
+                      style={{
+                        height: 120,
+                        overflow: 'auto',
+                        backgroundColor: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                      }}
+                    >
                       {selected.violations.map((v, idx) => {
                         const standard = getBrandStandard(v.rule)
                         return (
                           <div key={idx} className="mb-2 last:mb-0">
-                            <div className="text-[11px] text-muted" style={{ fontWeight: 500 }}>
+                            <div className="text-[11px]" style={{ fontWeight: 500, color: 'var(--color-muted)' }}>
                               {standard.label}
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
                               {standard.color && (
                                 <div
-                                  className="w-4 h-4 rounded border border-border shrink-0"
-                                  style={{ backgroundColor: standard.color }}
+                                  className="w-4 h-4 rounded shrink-0"
+                                  style={{ backgroundColor: standard.color, border: '1px solid var(--color-border)' }}
                                 />
                               )}
-                              <span className="text-[13px] text-ink" style={{ fontWeight: 500 }}>
+                              <span className="text-[13px]" style={{ fontWeight: 500, color: 'var(--color-ink)' }}>
                                 {standard.value}
                               </span>
                             </div>
@@ -376,31 +409,47 @@ export default function Guard() {
               <div className="flex flex-wrap items-center gap-2 mb-6">
                 <button
                   onClick={() => updateStatus(selected.id, 'investigating')}
-                  className="border border-border bg-transparent h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] hover:border-border-hover inline-flex items-center gap-2"
-                  style={{ fontWeight: 500 }}
+                  className="h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] inline-flex items-center gap-2"
+                  style={{
+                    fontWeight: 500,
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--color-border)',
+                  }}
                 >
                   <Clock size={16} strokeWidth={1.5} />
                   Mark Investigating
                 </button>
                 <button
                   onClick={() => updateStatus(selected.id, 'resolved-updated')}
-                  className="bg-ink text-white h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] hover:opacity-90 inline-flex items-center gap-2"
-                  style={{ fontWeight: 500 }}
+                  className="h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] inline-flex items-center gap-2"
+                  style={{
+                    fontWeight: 500,
+                    backgroundColor: 'var(--color-ink)',
+                    color: '#fff',
+                  }}
                 >
                   <CheckCircle size={16} strokeWidth={1.5} />
                   Resolved — Updated
                 </button>
                 <button
                   onClick={() => updateStatus(selected.id, 'resolved-exception')}
-                  className="border border-border bg-transparent h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] hover:border-border-hover"
-                  style={{ fontWeight: 500 }}
+                  className="h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms]"
+                  style={{
+                    fontWeight: 500,
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--color-border)',
+                  }}
                 >
                   Exception
                 </button>
                 <button
                   onClick={() => updateStatus(selected.id, 'dismissed')}
-                  className="border border-border bg-transparent h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] hover:border-border-hover hover:text-signal-red inline-flex items-center gap-2"
-                  style={{ fontWeight: 500 }}
+                  className="h-10 px-4 rounded-lg text-[13px] cursor-pointer transition-all duration-[120ms] inline-flex items-center gap-2"
+                  style={{
+                    fontWeight: 500,
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--color-border)',
+                  }}
                 >
                   <XCircle size={16} strokeWidth={1.5} />
                   Dismiss
@@ -408,16 +457,16 @@ export default function Guard() {
               </div>
 
               {/* Insights */}
-              <div className="border-t border-border pt-5">
+              <div className="pt-5" style={{ borderTop: '1px solid var(--color-border)' }}>
                 <div className="caption mb-3">INSIGHTS</div>
-                <p className="text-[14px] text-ink mb-2">
+                <p className="text-[14px] mb-2" style={{ color: 'var(--color-ink)' }}>
                   Most common: <span style={{ fontWeight: 600 }}>{topViolation.type}</span>
                 </p>
                 <div className="space-y-1.5 mb-4">
                   {top3Violations.map((v) => (
                     <div key={v.type} className="flex items-center justify-between text-[13px]">
-                      <span className="text-muted">{v.type}</span>
-                      <span className="font-mono text-[13px] text-ink" style={{ fontWeight: 500 }}>
+                      <span style={{ color: 'var(--color-muted)' }}>{v.type}</span>
+                      <span className="font-mono text-[13px]" style={{ fontWeight: 500, color: 'var(--color-ink)' }}>
                         {v.count}
                       </span>
                     </div>
@@ -425,8 +474,8 @@ export default function Guard() {
                 </div>
                 <Link
                   to="/brand-system"
-                  className="text-accent text-[13px] inline-flex items-center gap-1 hover:underline"
-                  style={{ fontWeight: 500 }}
+                  className="text-[13px] inline-flex items-center gap-1 hover:underline"
+                  style={{ fontWeight: 500, color: 'var(--color-accent)' }}
                 >
                   Improve your brand system
                   <ArrowRight size={14} strokeWidth={1.5} />

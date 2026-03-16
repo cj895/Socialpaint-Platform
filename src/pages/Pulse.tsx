@@ -9,29 +9,94 @@ import {
 import { analyticsData } from '../data/mockData'
 
 /* ------------------------------------------------------------------ */
-/*  Design tokens                                                      */
-/* ------------------------------------------------------------------ */
-const ink = '#0f0f0f'
-const surface = '#f3f3f2'
-const border = 'rgba(15,15,15,0.06)'
-const muted = 'rgba(15,15,15,0.45)'
-const accent = '#2d5bf6'
-const signalGreen = '#1a8754'
-const signalRed = '#dc3545'
-
-/* ------------------------------------------------------------------ */
 /*  Shared tooltip style                                               */
 /* ------------------------------------------------------------------ */
-const tooltipStyle = {
+const tooltipStyle: React.CSSProperties = {
   backgroundColor: '#fff',
   borderRadius: 8,
-  border: `1px solid ${border}`,
+  border: '1px solid var(--color-border)',
   boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
   fontSize: 13,
 }
 
 /* ------------------------------------------------------------------ */
-/*  Component                                                          */
+/*  Reusable sub-components                                            */
+/* ------------------------------------------------------------------ */
+
+/** Section label using the .caption class from index.css */
+function Caption({ children }: { children: React.ReactNode }) {
+  return <p className="caption mb-4">{children}</p>
+}
+
+/** Card wrapper — surface bg, border, rounded */
+function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-xl p-6 bg-surface border border-border ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+/** Horizontal bar used in ranked lists */
+function ProgressBar({
+  value,
+  max,
+  color = 'bg-ink',
+  trackColor = 'bg-border',
+}: {
+  value: number
+  max: number
+  color?: string
+  trackColor?: string
+}) {
+  const pct = max > 0 ? (value / max) * 100 : 0
+  return (
+    <div className={`h-[3px] rounded-sm ${trackColor}`}>
+      <div
+        className={`h-[3px] rounded-sm ${color} transition-[width] duration-150 ease-out`}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  )
+}
+
+/** Recommendation card */
+function RecommendationCard({
+  icon,
+  title,
+  description,
+  linkLabel,
+  linkTo,
+}: {
+  icon: React.ReactNode
+  title: string
+  description: string
+  linkLabel: string
+  linkTo: string
+}) {
+  return (
+    <Card className="p-5">
+      <div className="flex items-start gap-4">
+        <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-subtle">
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold mb-1">{title}</h3>
+          <p className="text-sm text-muted mb-3">{description}</p>
+          <Link
+            to={linkTo}
+            className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:opacity-80 transition-opacity"
+          >
+            {linkLabel} <ArrowRight size={16} strokeWidth={1.5} />
+          </Link>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 export default function Pulse() {
   const { weeklyTrend, teamActivity, topUsers, formatBreakdown, violationTypes } = analyticsData
@@ -41,51 +106,31 @@ export default function Pulse() {
   const maxViolation = Math.max(...violationTypes.map((v) => v.count))
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', color: ink }}>
+    <div className="font-sans text-ink">
       {/* ============================================================ */}
       {/* PAGE HEADER                                                   */}
       {/* ============================================================ */}
       <div className="mb-12">
-        <h1 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.5px' }}>Pulse</h1>
-        <p style={{ fontSize: 14, fontWeight: 400, color: muted, marginTop: 4 }}>
-          Brand performance intelligence
-        </p>
+        <h1 className="text-[28px] font-semibold tracking-tight">Pulse</h1>
+        <p className="text-sm text-muted mt-1">Brand performance intelligence</p>
       </div>
 
       {/* ============================================================ */}
-      {/* SECTION 1 — How active is your team?                          */}
+      {/* SECTION 1 -- Team Activity                                    */}
       {/* ============================================================ */}
       <section>
-        <p
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            textTransform: 'uppercase',
-            letterSpacing: 0.8,
-            color: 'rgba(15,15,15,0.4)',
-            marginBottom: 16,
-          }}
-        >
-          TEAM ACTIVITY
-        </p>
+        <Caption>TEAM ACTIVITY</Caption>
 
         {/* Weekly trend chart card */}
-        <div
-          className="rounded-xl p-6"
-          style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-        >
-          {/* Overlay stat */}
+        <Card>
           <div className="mb-2">
-            <span style={{ fontSize: 48, fontWeight: 600, letterSpacing: -2, lineHeight: 1 }}>
+            <span className="text-5xl font-semibold tracking-tighter leading-none">
               {analyticsData.totalGenerated.month}
             </span>
-            <p style={{ fontSize: 14, fontWeight: 400, color: muted, marginTop: 4 }}>
-              generated this month
-            </p>
+            <p className="text-sm text-muted mt-1">generated this month</p>
           </div>
 
-          {/* Chart */}
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <LineChart data={weeklyTrend}>
               <CartesianGrid vertical={false} stroke="rgba(15,15,15,0.04)" />
               <XAxis
@@ -98,252 +143,125 @@ export default function Pulse() {
               <Line
                 type="monotone"
                 dataKey="count"
-                stroke={ink}
+                stroke="var(--color-ink)"
                 strokeWidth={2}
                 dot={false}
               />
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
 
         {/* 3-column breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {/* Top Teams */}
-          <div
-            className="rounded-xl p-6"
-            style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-          >
-            <p
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-                marginBottom: 16,
-              }}
-            >
-              TOP TEAMS
-            </p>
+          <Card>
+            <Caption>TOP TEAMS</Caption>
             <div className="flex flex-col gap-3">
               {teamActivity.slice(0, 5).map((t, i) => (
                 <div key={t.team}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <span
-                        className="font-mono"
-                        style={{ fontSize: 13, color: muted, width: 16, display: 'inline-block' }}
-                      >
+                      <span className="font-mono text-[13px] text-muted w-4 inline-block">
                         {i + 1}
                       </span>
-                      <span style={{ fontSize: 14, fontWeight: 500 }}>{t.team}</span>
+                      <span className="text-sm font-medium">{t.team}</span>
                     </div>
-                    <span className="font-mono" style={{ fontSize: 13, color: muted }}>
-                      {t.count}
-                    </span>
+                    <span className="font-mono text-[13px] text-muted">{t.count}</span>
                   </div>
-                  <div
-                    style={{
-                      height: 3,
-                      borderRadius: 2,
-                      backgroundColor: 'rgba(15,15,15,0.06)',
-                      marginLeft: 24,
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: 3,
-                        borderRadius: 2,
-                        backgroundColor: ink,
-                        width: `${(t.count / maxTeam) * 100}%`,
-                        transition: 'width 120ms ease',
-                      }}
-                    />
+                  <div className="ml-6">
+                    <ProgressBar value={t.count} max={maxTeam} />
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* Top Users */}
-          <div
-            className="rounded-xl p-6"
-            style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-          >
-            <p
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-                marginBottom: 16,
-              }}
-            >
-              TOP USERS
-            </p>
+          <Card>
+            <Caption>TOP USERS</Caption>
             <div className="flex flex-col gap-3">
               {topUsers.map((u, i) => (
                 <div key={u.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span
-                      className="font-mono"
-                      style={{ fontSize: 13, color: muted, width: 16, display: 'inline-block' }}
-                    >
+                    <span className="font-mono text-[13px] text-muted w-4 inline-block">
                       {i + 1}
                     </span>
                     <div>
-                      <span style={{ fontSize: 14, fontWeight: 500 }}>{u.name}</span>
-                      <span style={{ fontSize: 13, color: muted, marginLeft: 6 }}>{u.team}</span>
+                      <span className="text-sm font-medium">{u.name}</span>
+                      <span className="text-[13px] text-muted ml-1.5">{u.team}</span>
                     </div>
                   </div>
-                  <span className="font-mono" style={{ fontSize: 13, color: muted }}>
-                    {u.count}
-                  </span>
+                  <span className="font-mono text-[13px] text-muted">{u.count}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* Formats */}
-          <div
-            className="rounded-xl p-6"
-            style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-          >
-            <p
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-                marginBottom: 16,
-              }}
-            >
-              FORMATS
-            </p>
+          <Card>
+            <Caption>FORMATS</Caption>
             <div className="flex flex-col gap-3">
               {formatBreakdown.map((f) => (
                 <div key={f.format}>
                   <div className="flex items-center justify-between mb-1">
-                    <span style={{ fontSize: 14, fontWeight: 400 }}>{f.format}</span>
-                    <span className="font-mono" style={{ fontSize: 13, color: muted }}>
-                      {f.count}
-                    </span>
+                    <span className="text-sm">{f.format}</span>
+                    <span className="font-mono text-[13px] text-muted">{f.count}</span>
                   </div>
-                  <div
-                    style={{
-                      height: 3,
-                      borderRadius: 2,
-                      backgroundColor: 'rgba(15,15,15,0.06)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: 3,
-                        borderRadius: 2,
-                        backgroundColor: ink,
-                        width: `${(f.count / maxFormat) * 100}%`,
-                        transition: 'width 120ms ease',
-                      }}
-                    />
-                  </div>
+                  <ProgressBar value={f.count} max={maxFormat} />
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* SECTION 2 — Is your brand staying consistent?                 */}
+      {/* SECTION 2 -- Brand Compliance                                 */}
       {/* ============================================================ */}
-      <section style={{ marginTop: 48 }}>
-        <p
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            textTransform: 'uppercase',
-            letterSpacing: 0.8,
-            color: 'rgba(15,15,15,0.4)',
-            marginBottom: 16,
-          }}
-        >
-          BRAND COMPLIANCE
-        </p>
+      <section className="mt-12">
+        <Caption>BRAND COMPLIANCE</Caption>
 
         {/* Score + compliance ratio */}
-        <div
-          className="rounded-xl p-6 grid grid-cols-1 md:grid-cols-5 gap-8 items-center"
-          style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-        >
-          {/* Left 60%: avg alignment score */}
+        <Card className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
+          {/* Left: avg alignment score */}
           <div className="md:col-span-3">
-            <p
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-                marginBottom: 8,
-              }}
-            >
-              AVG ALIGNMENT SCORE
-            </p>
+            <p className="caption mb-2">AVG ALIGNMENT SCORE</p>
             <div className="flex items-center gap-3">
-              <span style={{ fontSize: 48, fontWeight: 600, letterSpacing: -2, lineHeight: 1 }}>
+              <span className="text-5xl font-semibold tracking-tighter leading-none">
                 {analyticsData.avgAlignmentScore}
               </span>
-              <div className="flex items-center gap-1" style={{ color: signalGreen }}>
+              <div className="flex items-center gap-1 text-signal-green">
                 <TrendingUp size={16} strokeWidth={1.5} />
-                <span style={{ fontSize: 14, fontWeight: 500 }}>+2 pts</span>
+                <span className="text-sm font-medium">+2 pts</span>
               </div>
             </div>
           </div>
 
-          {/* Right 40%: compliance ratio bar */}
+          {/* Right: compliance ratio bar */}
           <div className="md:col-span-2">
-            <div
-              style={{
-                height: 8,
-                borderRadius: 999,
-                overflow: 'hidden',
-                display: 'flex',
-                backgroundColor: 'rgba(15,15,15,0.06)',
-              }}
-            >
+            <div className="h-2 rounded-full overflow-hidden flex bg-border">
               <div
-                style={{
-                  width: `${analyticsData.passedPercent}%`,
-                  backgroundColor: signalGreen,
-                  borderRadius: '999px 0 0 999px',
-                }}
+                className="bg-signal-green rounded-l-full"
+                style={{ width: `${analyticsData.passedPercent}%` }}
               />
               <div
-                style={{
-                  width: `${analyticsData.flaggedPercent}%`,
-                  backgroundColor: signalRed,
-                  borderRadius: '0 999px 999px 0',
-                }}
+                className="bg-signal-red rounded-r-full"
+                style={{ width: `${analyticsData.flaggedPercent}%` }}
               />
             </div>
             <div className="flex justify-between mt-2">
-              <span style={{ fontSize: 13, fontWeight: 500, color: signalGreen }}>
+              <span className="text-[13px] font-medium text-signal-green">
                 {analyticsData.passedPercent}% passed
               </span>
-              <span style={{ fontSize: 13, fontWeight: 500, color: signalRed }}>
+              <span className="text-[13px] font-medium text-signal-red">
                 {analyticsData.flaggedPercent}% flagged
               </span>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Compliance trend chart */}
-        <div
-          className="rounded-xl p-6 mt-6"
-          style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-        >
+        <Card className="mt-6">
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={weeklyTrend}>
               <CartesianGrid vertical={false} stroke="rgba(15,15,15,0.04)" />
@@ -357,203 +275,66 @@ export default function Pulse() {
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke={signalGreen}
+                stroke="var(--color-signal-green)"
                 strokeWidth={2}
                 dot={false}
               />
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
 
         {/* Top violations */}
-        <div
-          className="rounded-xl p-6 mt-6"
-          style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-        >
-          <p
-            style={{
-              fontSize: 11,
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: 0.8,
-              color: 'rgba(15,15,15,0.4)',
-              marginBottom: 16,
-            }}
-          >
-            TOP VIOLATIONS
-          </p>
+        <Card className="mt-6">
+          <Caption>TOP VIOLATIONS</Caption>
           <div className="flex flex-col gap-4">
             {violationTypes.map((v) => (
               <div key={v.type}>
                 <div className="flex items-center justify-between mb-1">
-                  <span style={{ fontSize: 14, fontWeight: 400 }}>{v.type}</span>
-                  <span className="font-mono" style={{ fontSize: 13, color: muted }}>
-                    {v.count}
-                  </span>
+                  <span className="text-sm">{v.type}</span>
+                  <span className="font-mono text-[13px] text-muted">{v.count}</span>
                 </div>
-                <div
-                  style={{
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: 'rgba(220,53,69,0.2)',
-                  }}
-                >
-                  <div
-                    style={{
-                      height: 4,
-                      borderRadius: 2,
-                      backgroundColor: signalRed,
-                      width: `${(v.count / maxViolation) * 100}%`,
-                      transition: 'width 120ms ease',
-                    }}
-                  />
-                </div>
+                <ProgressBar
+                  value={v.count}
+                  max={maxViolation}
+                  color="bg-signal-red"
+                  trackColor="bg-signal-red/20"
+                />
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </section>
 
       {/* ============================================================ */}
-      {/* SECTION 3 — Where should you improve?                         */}
+      {/* SECTION 3 -- Recommendations                                  */}
       {/* ============================================================ */}
-      <section style={{ marginTop: 48 }}>
-        <p
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            textTransform: 'uppercase',
-            letterSpacing: 0.8,
-            color: 'rgba(15,15,15,0.4)',
-            marginBottom: 16,
-          }}
-        >
-          RECOMMENDATIONS
-        </p>
+      <section className="mt-12">
+        <Caption>RECOMMENDATIONS</Caption>
 
         <div className="flex flex-col gap-4">
-          {/* Recommendation 1: Color mismatch */}
-          <div
-            className="rounded-xl p-5"
-            style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-          >
-            <div className="flex items-start gap-4">
-              <div
-                className="flex-shrink-0 flex items-center justify-center rounded-lg"
-                style={{
-                  width: 36,
-                  height: 36,
-                  backgroundColor: 'rgba(15,15,15,0.04)',
-                }}
-              >
-                <FileImage size={18} strokeWidth={1.5} style={{ color: muted }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>
-                  Strengthen your color system
-                </h3>
-                <p style={{ fontSize: 14, fontWeight: 400, color: muted, marginBottom: 12 }}>
-                  Color mismatch is your #1 violation type with 34 occurrences. Review and expand
-                  your color palette to cover common use cases.
-                </p>
-                <Link
-                  to="/brand-system"
-                  className="inline-flex items-center gap-1"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: accent,
-                    textDecoration: 'none',
-                    transition: 'opacity 120ms ease',
-                  }}
-                >
-                  Review color system <ArrowRight size={16} strokeWidth={1.5} />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <RecommendationCard
+            icon={<FileImage size={18} strokeWidth={1.5} className="text-muted" />}
+            title="Strengthen your color system"
+            description="Color mismatch is your #1 violation type with 34 occurrences. Review and expand your color palette to cover common use cases."
+            linkLabel="Review color system"
+            linkTo="/brand-system"
+          />
 
-          {/* Recommendation 2: Voice deviation */}
-          <div
-            className="rounded-xl p-5"
-            style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-          >
-            <div className="flex items-start gap-4">
-              <div
-                className="flex-shrink-0 flex items-center justify-center rounded-lg"
-                style={{
-                  width: 36,
-                  height: 36,
-                  backgroundColor: 'rgba(15,15,15,0.04)',
-                }}
-              >
-                <Shield size={18} strokeWidth={1.5} style={{ color: muted }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>
-                  Tighten your brand voice guidelines
-                </h3>
-                <p style={{ fontSize: 14, fontWeight: 400, color: muted, marginBottom: 12 }}>
-                  Voice deviation accounts for 28 flags this month. Add more examples of preferred
-                  and avoided language to help your team stay on-brand.
-                </p>
-                <Link
-                  to="/brand-system"
-                  className="inline-flex items-center gap-1"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: accent,
-                    textDecoration: 'none',
-                    transition: 'opacity 120ms ease',
-                  }}
-                >
-                  Review voice guidelines <ArrowRight size={16} strokeWidth={1.5} />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <RecommendationCard
+            icon={<Shield size={18} strokeWidth={1.5} className="text-muted" />}
+            title="Tighten your brand voice guidelines"
+            description="Voice deviation accounts for 28 flags this month. Add more examples of preferred and avoided language to help your team stay on-brand."
+            linkLabel="Review voice guidelines"
+            linkTo="/brand-system"
+          />
 
-          {/* Recommendation 3: Typography mismatch */}
-          <div
-            className="rounded-xl p-5"
-            style={{ backgroundColor: surface, border: `1px solid ${border}` }}
-          >
-            <div className="flex items-start gap-4">
-              <div
-                className="flex-shrink-0 flex items-center justify-center rounded-lg"
-                style={{
-                  width: 36,
-                  height: 36,
-                  backgroundColor: 'rgba(15,15,15,0.04)',
-                }}
-              >
-                <Users size={18} strokeWidth={1.5} style={{ color: muted }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>
-                  Standardize typography across teams
-                </h3>
-                <p style={{ fontSize: 14, fontWeight: 400, color: muted, marginBottom: 12 }}>
-                  Typography mismatch has 19 occurrences, often from teams using system fonts instead
-                  of brand fonts. Distribute font files and update your onboarding guide.
-                </p>
-                <Link
-                  to="/brand-system"
-                  className="inline-flex items-center gap-1"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: accent,
-                    textDecoration: 'none',
-                    transition: 'opacity 120ms ease',
-                  }}
-                >
-                  Review typography system <ArrowRight size={16} strokeWidth={1.5} />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <RecommendationCard
+            icon={<Users size={18} strokeWidth={1.5} className="text-muted" />}
+            title="Standardize typography across teams"
+            description="Typography mismatch has 19 occurrences, often from teams using system fonts instead of brand fonts. Distribute font files and update your onboarding guide."
+            linkLabel="Review typography system"
+            linkTo="/brand-system"
+          />
         </div>
       </section>
     </div>

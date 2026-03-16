@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Sparkles, Download, Send, ChevronDown,
-  RefreshCw, Image,
-  Minus, Plus,
+  RefreshCw, Image, Minus, Plus,
+  Fingerprint, Eye, EyeOff, Check,
 } from 'lucide-react'
-import { Fingerprint, Eye, EyeOff, Check } from 'lucide-react'
 import {
   contentFormats, brandColors, brandVoice, brandProfile,
   generationHistory,
@@ -65,25 +64,23 @@ export default function Create() {
     { key: 'cta' as const, label: 'CTA Element' },
   ]
 
+  const captionClass = 'caption mb-2'
+  const precisionCaptionClass = precisionMode
+    ? 'caption mb-2 [color:rgba(255,255,255,0.4)]'
+    : 'caption mb-2'
+
   return (
-    <div className="flex flex-col lg:flex-row h-full min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-0">
       {/* LEFT — Control Panel */}
-      <div
-        className="w-full lg:w-[40%] bg-[#fafaf9] border-b lg:border-b-0 lg:border-r overflow-y-auto shrink-0"
-        style={{ borderColor: 'rgba(15,15,15,0.06)' }}
-      >
-        <div className="p-6 flex flex-col gap-6">
+      <div className="border-b lg:border-b-0 lg:border-r border-border">
+        <div className="flex flex-col gap-6 py-2">
           {/* Title + Precision Toggle */}
           <div className="flex items-center justify-between">
-            <h1 style={{ fontSize: 28, fontWeight: 600, color: '#0f0f0f' }}>Create</h1>
-            <div
-              className="flex items-center rounded-lg overflow-hidden border"
-              style={{ borderColor: 'rgba(15,15,15,0.06)' }}
-            >
+            <h1 className="text-[28px] font-semibold text-ink">Create</h1>
+            <div className="flex items-center rounded-lg overflow-hidden border border-border">
               <button
-                className="px-3 py-1.5 text-[13px] transition-colors duration-[120ms]"
+                className="px-3 py-1.5 text-[13px] font-medium transition-colors duration-[120ms]"
                 style={{
-                  fontWeight: 500,
                   backgroundColor: !precisionMode ? '#0f0f0f' : '#f3f3f2',
                   color: !precisionMode ? '#fff' : 'rgba(15,15,15,0.45)',
                 }}
@@ -92,9 +89,8 @@ export default function Create() {
                 Standard
               </button>
               <button
-                className="px-3 py-1.5 text-[13px] transition-colors duration-[120ms]"
+                className="px-3 py-1.5 text-[13px] font-medium transition-colors duration-[120ms]"
                 style={{
-                  fontWeight: 500,
                   backgroundColor: precisionMode ? '#0f0f0f' : '#f3f3f2',
                   color: precisionMode ? '#fff' : 'rgba(15,15,15,0.45)',
                 }}
@@ -107,26 +103,11 @@ export default function Create() {
 
           {/* Format Selector */}
           <div>
-            <div
-              className="uppercase mb-2"
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-              }}
-            >
-              Format
-            </div>
+            <div className={captionClass}>Format</div>
             <select
               value={selectedFormat}
               onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full bg-[#f3f3f2] border rounded-lg px-3 py-2.5 text-[14px] appearance-none cursor-pointer transition-colors duration-[120ms]"
-              style={{
-                borderColor: 'rgba(15,15,15,0.06)',
-                fontWeight: 400,
-                color: '#0f0f0f',
-              }}
+              className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-[14px] appearance-none cursor-pointer transition-colors duration-[120ms] text-ink"
             >
               {contentFormats.map((f) => (
                 <option key={f.id} value={f.id}>
@@ -134,42 +115,23 @@ export default function Create() {
                 </option>
               ))}
             </select>
-            <div
-              className="mt-1.5 font-mono"
-              style={{ fontSize: 13, color: 'rgba(15,15,15,0.45)' }}
-            >
+            <div className="mt-1.5 font-mono text-[13px] text-muted">
               {activeFormat.width} &times; {activeFormat.height}px
             </div>
           </div>
 
           {/* Prompt Input */}
           <div>
-            <div
-              className="uppercase mb-2"
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-              }}
-            >
-              Prompt
-            </div>
+            <div className={captionClass}>Prompt</div>
             <textarea
               rows={5}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe what you need..."
-              className="w-full bg-[#f3f3f2] border rounded-xl p-4 text-[14px] resize-none transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-[#2d5bf6]"
-              style={{
-                borderColor: 'rgba(15,15,15,0.06)',
-                fontWeight: 400,
-                color: '#0f0f0f',
-              }}
+              className="w-full bg-surface border border-border rounded-xl p-4 text-[14px] text-ink resize-none transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
             />
             <button
-              className="mt-3 w-full h-10 bg-[#0f0f0f] text-white rounded-lg text-[13px] flex items-center justify-center gap-2 transition-opacity duration-[120ms] hover:opacity-90"
-              style={{ fontWeight: 500 }}
+              className="mt-3 w-full h-10 bg-ink text-white rounded-lg text-[13px] font-medium flex items-center justify-center gap-2 transition-opacity duration-[120ms] hover:opacity-90"
               onClick={() => setGenerated(true)}
             >
               <Sparkles size={16} strokeWidth={1.5} />
@@ -179,24 +141,11 @@ export default function Create() {
 
           {/* Brand Context */}
           <div>
-            <div
-              className="uppercase mb-3"
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-              }}
-            >
-              Brand Context
-            </div>
-            <div
-              className="bg-[#f3f3f2] border rounded-xl p-4 flex flex-col gap-3"
-              style={{ borderColor: 'rgba(15,15,15,0.06)' }}
-            >
+            <div className={captionClass}>Brand Context</div>
+            <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <Fingerprint size={16} strokeWidth={1.5} style={{ color: 'rgba(15,15,15,0.45)' }} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#0f0f0f' }}>
+                <Fingerprint size={16} strokeWidth={1.5} className="text-muted" />
+                <span className="text-[14px] font-semibold text-ink">
                   {brandProfile.name}
                 </span>
               </div>
@@ -209,13 +158,12 @@ export default function Create() {
                   />
                 ))}
               </div>
-              <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(15,15,15,0.45)' }}>
+              <div className="text-[14px] text-muted">
                 {brandVoice.tone.join(', ')}
               </div>
               <Link
                 to="/brand-system"
-                className="text-[13px] transition-colors duration-[120ms] hover:opacity-80"
-                style={{ fontWeight: 500, color: '#2d5bf6' }}
+                className="text-[13px] font-medium text-accent transition-colors duration-[120ms] hover:opacity-80"
               >
                 View brand system &rarr;
               </Link>
@@ -227,26 +175,12 @@ export default function Create() {
             <>
               {/* Style Controls */}
               <div>
-                <div
-                  className="uppercase mb-3"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  Style Controls
-                </div>
+                <div className={captionClass}>Style Controls</div>
                 <div className="flex flex-col gap-4">
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <span style={{ fontSize: 13, fontWeight: 400, color: '#0f0f0f' }}>
-                        Creativity
-                      </span>
-                      <span className="font-mono" style={{ fontSize: 13, color: 'rgba(15,15,15,0.45)' }}>
-                        {creativity}
-                      </span>
+                      <span className="text-[13px] text-ink">Creativity</span>
+                      <span className="font-mono text-[13px] text-muted">{creativity}</span>
                     </div>
                     <input
                       type="range"
@@ -254,17 +188,13 @@ export default function Create() {
                       max={100}
                       value={creativity}
                       onChange={(e) => setCreativity(Number(e.target.value))}
-                      className="w-full accent-[#0f0f0f] h-1"
+                      className="w-full accent-ink h-1"
                     />
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <span style={{ fontSize: 13, fontWeight: 400, color: '#0f0f0f' }}>
-                        Brand Adherence
-                      </span>
-                      <span className="font-mono" style={{ fontSize: 13, color: 'rgba(15,15,15,0.45)' }}>
-                        {brandAdherence}
-                      </span>
+                      <span className="text-[13px] text-ink">Brand Adherence</span>
+                      <span className="font-mono text-[13px] text-muted">{brandAdherence}</span>
                     </div>
                     <input
                       type="range"
@@ -272,7 +202,7 @@ export default function Create() {
                       max={100}
                       value={brandAdherence}
                       onChange={(e) => setBrandAdherence(Number(e.target.value))}
-                      className="w-full accent-[#0f0f0f] h-1"
+                      className="w-full accent-ink h-1"
                     />
                   </div>
                 </div>
@@ -280,17 +210,7 @@ export default function Create() {
 
               {/* Color Overrides */}
               <div>
-                <div
-                  className="uppercase mb-3"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  Color Overrides
-                </div>
+                <div className={captionClass}>Color Overrides</div>
                 <div className="flex items-center gap-2.5 flex-wrap">
                   {brandColors.map((c) => (
                     <button
@@ -309,21 +229,8 @@ export default function Create() {
 
               {/* Layers */}
               <div>
-                <div
-                  className="uppercase mb-3"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  Layers
-                </div>
-                <div
-                  className="bg-[#f3f3f2] border rounded-xl overflow-hidden"
-                  style={{ borderColor: 'rgba(15,15,15,0.06)' }}
-                >
+                <div className={captionClass}>Layers</div>
+                <div className="bg-surface border border-border rounded-xl overflow-hidden">
                   {layers.map((layer, i) => (
                     <div
                       key={layer.key}
@@ -332,15 +239,13 @@ export default function Create() {
                         borderTop: i > 0 ? '1px solid rgba(15,15,15,0.06)' : undefined,
                       }}
                     >
-                      <span style={{ fontSize: 13, fontWeight: 400, color: '#0f0f0f' }}>
-                        {layer.label}
-                      </span>
+                      <span className="text-[13px] text-ink">{layer.label}</span>
                       <button
                         className="transition-opacity duration-[120ms] hover:opacity-70"
                         onClick={() => toggleLayer(layer.key)}
                       >
                         {layerVisibility[layer.key] ? (
-                          <Eye size={16} strokeWidth={1.5} style={{ color: '#0f0f0f' }} />
+                          <Eye size={16} strokeWidth={1.5} className="text-ink" />
                         ) : (
                           <EyeOff size={16} strokeWidth={1.5} style={{ color: 'rgba(15,15,15,0.3)' }} />
                         )}
@@ -354,17 +259,7 @@ export default function Create() {
 
           {/* Generation History */}
           <div>
-            <div
-              className="uppercase mb-3"
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: 0.8,
-                color: 'rgba(15,15,15,0.4)',
-              }}
-            >
-              History
-            </div>
+            <div className={captionClass}>History</div>
             <div className="flex flex-col">
               {generationHistory.slice(0, 5).map((item, i) => (
                 <div
@@ -374,27 +269,13 @@ export default function Create() {
                     borderTop: i > 0 ? '1px solid rgba(15,15,15,0.06)' : undefined,
                   }}
                 >
-                  <span
-                    className="flex-1 truncate"
-                    style={{ fontSize: 13, fontWeight: 400, color: '#0f0f0f' }}
-                  >
+                  <span className="flex-1 truncate text-[13px] text-ink">
                     {item.prompt}
                   </span>
+                  <span className="caption shrink-0">{item.format}</span>
                   <span
-                    className="uppercase shrink-0"
+                    className="font-mono shrink-0 rounded px-1.5 py-0.5 text-[13px]"
                     style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: 0.8,
-                      color: 'rgba(15,15,15,0.4)',
-                    }}
-                  >
-                    {item.format}
-                  </span>
-                  <span
-                    className="font-mono shrink-0 rounded px-1.5 py-0.5"
-                    style={{
-                      fontSize: 13,
                       color: scoreColor(item.score),
                       backgroundColor: scoreBg(item.score),
                     }}
@@ -410,50 +291,33 @@ export default function Create() {
 
       {/* RIGHT — Canvas Area */}
       <div
-        className="flex-1 flex flex-col min-h-0"
-        style={{ backgroundColor: precisionMode ? '#1a1a1a' : '#e8e8e7' }}
+        className="flex flex-col gap-4 py-4 lg:pl-6"
+        style={{ backgroundColor: precisionMode ? '#1a1a1a' : undefined }}
       >
         {/* Floating Toolbar */}
         {generated && (
-          <div className="flex justify-center px-6 pt-4">
+          <div className="flex justify-center">
             <div
-              className="bg-white rounded-xl border px-4 py-2 flex items-center gap-3"
-              style={{
-                borderColor: 'rgba(15,15,15,0.06)',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-              }}
+              className="bg-white rounded-xl border border-border px-4 py-2 flex items-center gap-3"
+              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
             >
               <span
-                className="font-mono rounded px-2 py-0.5"
+                className="font-mono rounded px-2 py-0.5 text-[13px] font-medium"
                 style={{
-                  fontSize: 13,
-                  fontWeight: 500,
                   color: '#1a8754',
                   backgroundColor: 'rgba(26,135,84,0.08)',
                 }}
               >
                 94
               </span>
-              <div className="w-px h-5" style={{ backgroundColor: 'rgba(15,15,15,0.06)' }} />
-              <button
-                className="flex items-center gap-1.5 border rounded-lg px-3 py-1.5 text-[13px] transition-colors duration-[120ms] hover:bg-[#f3f3f2]"
-                style={{
-                  fontWeight: 500,
-                  borderColor: 'rgba(15,15,15,0.06)',
-                  color: '#0f0f0f',
-                }}
-              >
+              <div className="w-px h-5 bg-border" />
+              <button className="flex items-center gap-1.5 border border-border rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors duration-[120ms] hover:bg-surface">
                 <RefreshCw size={14} strokeWidth={1.5} />
                 Regenerate
               </button>
               <div className="relative">
                 <button
-                  className="flex items-center gap-1.5 border rounded-lg px-3 py-1.5 text-[13px] transition-colors duration-[120ms] hover:bg-[#f3f3f2]"
-                  style={{
-                    fontWeight: 500,
-                    borderColor: 'rgba(15,15,15,0.06)',
-                    color: '#0f0f0f',
-                  }}
+                  className="flex items-center gap-1.5 border border-border rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors duration-[120ms] hover:bg-surface"
                   onClick={() => setShowDownloadMenu(!showDownloadMenu)}
                 >
                   <Download size={14} strokeWidth={1.5} />
@@ -462,17 +326,13 @@ export default function Create() {
                 </button>
                 {showDownloadMenu && (
                   <div
-                    className="absolute top-full mt-1 right-0 bg-white rounded-lg border py-1 z-10 min-w-[120px]"
-                    style={{
-                      borderColor: 'rgba(15,15,15,0.06)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    }}
+                    className="absolute top-full mt-1 right-0 bg-white rounded-lg border border-border py-1 z-10 min-w-[120px]"
+                    style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                   >
                     {['PNG', 'JPG', 'SVG', 'PDF'].map((fmt) => (
                       <button
                         key={fmt}
-                        className="w-full text-left px-3 py-1.5 text-[13px] transition-colors duration-[120ms] hover:bg-[#f3f3f2]"
-                        style={{ fontWeight: 400, color: '#0f0f0f' }}
+                        className="w-full text-left px-3 py-1.5 text-[13px] text-ink transition-colors duration-[120ms] hover:bg-surface"
                         onClick={() => setShowDownloadMenu(false)}
                       >
                         {fmt}
@@ -481,14 +341,7 @@ export default function Create() {
                   </div>
                 )}
               </div>
-              <button
-                className="flex items-center gap-1.5 border rounded-lg px-3 py-1.5 text-[13px] transition-colors duration-[120ms] hover:bg-[#f3f3f2]"
-                style={{
-                  fontWeight: 500,
-                  borderColor: 'rgba(15,15,15,0.06)',
-                  color: 'rgba(15,15,15,0.45)',
-                }}
-              >
+              <button className="flex items-center gap-1.5 border border-border rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted transition-colors duration-[120ms] hover:bg-surface">
                 <Send size={14} strokeWidth={1.5} />
                 Send to Figma
               </button>
@@ -497,14 +350,13 @@ export default function Create() {
         )}
 
         {/* Canvas */}
-        <div className="flex-1 flex items-center justify-center p-6 min-h-0">
+        <div className="flex items-center justify-center">
           {generated ? (
             <div
-              className="relative overflow-hidden rounded-xl"
+              className="relative overflow-hidden rounded-xl w-full"
               style={{
                 aspectRatio: `${activeFormat.width} / ${activeFormat.height}`,
-                maxHeight: '70vh',
-                maxWidth: '100%',
+                maxWidth: Math.min(activeFormat.width, 560),
                 background: `linear-gradient(135deg, ${brandColors[0].hex}, ${brandColors[1].hex})`,
                 transform: `scale(${zoom / 100})`,
                 transformOrigin: 'center',
@@ -512,20 +364,16 @@ export default function Create() {
             >
               <div className="absolute inset-0 flex flex-col justify-between p-8">
                 {/* Top — Brand name */}
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>
+                <div className="text-[14px] font-semibold text-white">
                   {brandProfile.name}
                 </div>
 
                 {/* Center — Headline + Body */}
                 <div className="flex flex-col items-center text-center gap-3">
-                  <h2 style={{ fontSize: 28, fontWeight: 600, color: '#fff' }}>{headline}</h2>
+                  <h2 className="text-[28px] font-semibold text-white">{headline}</h2>
                   <p
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 400,
-                      color: 'rgba(255,255,255,0.8)',
-                      maxWidth: '70%',
-                    }}
+                    className="text-[14px] text-white/80"
+                    style={{ maxWidth: '70%' }}
                   >
                     {bodyCopy}
                   </p>
@@ -533,10 +381,7 @@ export default function Create() {
 
                 {/* Bottom — CTA + Logo */}
                 <div className="flex items-end justify-between">
-                  <div
-                    className="rounded-lg px-4 py-2"
-                    style={{ backgroundColor: '#fff', color: '#0f0f0f', fontSize: 14, fontWeight: 500 }}
-                  >
+                  <div className="rounded-lg px-4 py-2 bg-white text-ink text-[14px] font-medium">
                     {cta}
                   </div>
                   <div
@@ -552,9 +397,9 @@ export default function Create() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-3 py-16">
               <Image size={48} strokeWidth={1} style={{ color: 'rgba(15,15,15,0.2)' }} />
-              <span style={{ fontSize: 14, fontWeight: 400, color: 'rgba(15,15,15,0.4)' }}>
+              <span className="text-[14px] text-muted">
                 Enter a prompt and click Generate
               </span>
             </div>
@@ -563,25 +408,22 @@ export default function Create() {
 
         {/* Zoom Controls (Precision Mode) */}
         {precisionMode && generated && (
-          <div className="flex justify-center pb-4">
-            <div
-              className="flex items-center gap-2 bg-white rounded-lg border px-3 py-1.5"
-              style={{ borderColor: 'rgba(15,15,15,0.06)' }}
-            >
+          <div className="flex justify-center">
+            <div className="flex items-center gap-2 bg-white rounded-lg border border-border px-3 py-1.5">
               <button
                 className="transition-opacity duration-[120ms] hover:opacity-70"
                 onClick={() => setZoom((z) => Math.max(25, z - 10))}
               >
-                <Minus size={16} strokeWidth={1.5} style={{ color: '#0f0f0f' }} />
+                <Minus size={16} strokeWidth={1.5} className="text-ink" />
               </button>
-              <span className="font-mono min-w-[48px] text-center" style={{ fontSize: 13, color: '#0f0f0f' }}>
+              <span className="font-mono min-w-[48px] text-center text-[13px] text-ink">
                 {zoom}%
               </span>
               <button
                 className="transition-opacity duration-[120ms] hover:opacity-70"
                 onClick={() => setZoom((z) => Math.min(200, z + 10))}
               >
-                <Plus size={16} strokeWidth={1.5} style={{ color: '#0f0f0f' }} />
+                <Plus size={16} strokeWidth={1.5} className="text-ink" />
               </button>
             </div>
           </div>
@@ -590,107 +432,46 @@ export default function Create() {
         {/* Editable Copy Fields */}
         {generated && (
           <div
-            className="border-t px-6 py-4"
+            className="border-t border-border pt-4"
             style={{
-              borderColor: 'rgba(15,15,15,0.06)',
-              backgroundColor: precisionMode ? '#1a1a1a' : '#e8e8e7',
+              backgroundColor: precisionMode ? '#1a1a1a' : undefined,
             }}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  className="uppercase block mb-1.5"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: precisionMode ? 'rgba(255,255,255,0.4)' : 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  Headline
-                </label>
+                <label className={`block ${precisionCaptionClass}`}>Headline</label>
                 <input
                   type="text"
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
-                  className="w-full bg-[#f3f3f2] border rounded-lg px-3 py-2 text-[14px] transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-[#2d5bf6]"
-                  style={{
-                    borderColor: 'rgba(15,15,15,0.06)',
-                    fontWeight: 400,
-                    color: '#0f0f0f',
-                  }}
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
-                <label
-                  className="uppercase block mb-1.5"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: precisionMode ? 'rgba(255,255,255,0.4)' : 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  Body Copy
-                </label>
+                <label className={`block ${precisionCaptionClass}`}>Body Copy</label>
                 <input
                   type="text"
                   value={bodyCopy}
                   onChange={(e) => setBodyCopy(e.target.value)}
-                  className="w-full bg-[#f3f3f2] border rounded-lg px-3 py-2 text-[14px] transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-[#2d5bf6]"
-                  style={{
-                    borderColor: 'rgba(15,15,15,0.06)',
-                    fontWeight: 400,
-                    color: '#0f0f0f',
-                  }}
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
-                <label
-                  className="uppercase block mb-1.5"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: precisionMode ? 'rgba(255,255,255,0.4)' : 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  Hashtags
-                </label>
+                <label className={`block ${precisionCaptionClass}`}>Hashtags</label>
                 <input
                   type="text"
                   value={hashtags}
                   onChange={(e) => setHashtags(e.target.value)}
-                  className="w-full bg-[#f3f3f2] border rounded-lg px-3 py-2 text-[14px] transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-[#2d5bf6]"
-                  style={{
-                    borderColor: 'rgba(15,15,15,0.06)',
-                    fontWeight: 400,
-                    color: '#0f0f0f',
-                  }}
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
-                <label
-                  className="uppercase block mb-1.5"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: 0.8,
-                    color: precisionMode ? 'rgba(255,255,255,0.4)' : 'rgba(15,15,15,0.4)',
-                  }}
-                >
-                  CTA
-                </label>
+                <label className={`block ${precisionCaptionClass}`}>CTA</label>
                 <input
                   type="text"
                   value={cta}
                   onChange={(e) => setCta(e.target.value)}
-                  className="w-full bg-[#f3f3f2] border rounded-lg px-3 py-2 text-[14px] transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-[#2d5bf6]"
-                  style={{
-                    borderColor: 'rgba(15,15,15,0.06)',
-                    fontWeight: 400,
-                    color: '#0f0f0f',
-                  }}
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
             </div>
