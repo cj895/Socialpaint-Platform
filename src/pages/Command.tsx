@@ -1,9 +1,4 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  ArrowRight, AlertTriangle,
-  PenTool, Fingerprint, Shield, Sparkles, ChevronRight,
-} from 'lucide-react'
 import { analyticsData, flaggedItems } from '../data/mockData'
 
 // ---------------------------------------------------------------------------
@@ -12,339 +7,392 @@ import { analyticsData, flaggedItems } from '../data/mockData'
 const activityFeed = [
   {
     id: 'a1',
-    type: 'generation' as const,
-    initials: 'SL',
-    description: 'Sarah L. generated an Instagram Post',
-    detail: 'Spring product launch announcement',
-    score: 94,
+    dot: '#4a7c59',
+    text: (
+      <>
+        <strong>Sarah L.</strong> generated an Instagram Post
+      </>
+    ),
     timestamp: '12 min ago',
   },
   {
     id: 'a2',
-    type: 'flag' as const,
-    initials: 'JK',
-    description: 'LinkedIn Post by James K. was flagged',
-    detail: 'Color mismatch & voice deviation detected',
-    score: 52,
+    dot: '#e94560',
+    text: (
+      <>
+        <strong>James K.</strong> LinkedIn Post was flagged
+      </>
+    ),
     timestamp: '34 min ago',
   },
   {
     id: 'a3',
-    type: 'brand' as const,
-    initials: 'DC',
-    description: 'David Chen updated the color palette',
-    detail: 'Added Coral Pop as CTA highlight',
+    dot: '#d97706',
+    text: (
+      <>
+        <strong>David Chen</strong> updated the color palette
+      </>
+    ),
     timestamp: '1 hr ago',
   },
   {
     id: 'a4',
-    type: 'generation' as const,
-    initials: 'PM',
-    description: 'Priya M. generated a Facebook Post',
-    detail: 'Engineering team hiring announcement',
-    score: 61,
+    dot: '#4a7c59',
+    text: (
+      <>
+        <strong>Priya M.</strong> generated a Facebook Post
+      </>
+    ),
     timestamp: '1.5 hr ago',
   },
   {
     id: 'a5',
-    type: 'flag' as const,
-    initials: 'AT',
-    description: 'Product launch teaser by Alex T. was flagged',
-    detail: 'Logo misuse & off-palette colors',
-    score: 48,
+    dot: '#e94560',
+    text: (
+      <>
+        <strong>Alex T.</strong> product launch teaser was flagged
+      </>
+    ),
     timestamp: '2 hr ago',
   },
   {
     id: 'a6',
-    type: 'generation' as const,
-    initials: 'SL',
-    description: 'Sarah L. generated an X Post',
-    detail: "Customer success story — Maria's journey",
-    score: 93,
+    dot: '#4a7c59',
+    text: (
+      <>
+        <strong>Sarah L.</strong> generated an X Post
+      </>
+    ),
     timestamp: '3 hr ago',
   },
+]
+
+// ---------------------------------------------------------------------------
+// Metrics data
+// ---------------------------------------------------------------------------
+const metrics = [
   {
-    id: 'a7',
-    type: 'brand' as const,
-    initials: 'ER',
-    description: 'Elena Rodriguez updated voice guidelines',
-    detail: 'Refined preferred vocabulary list',
-    timestamp: '4 hr ago',
+    label: 'Brand Score',
+    value: '87',
+    suffix: '/100',
+    change: '\u2191 4 pts this month',
+    changeColor: '#4a7c59',
+    dot: '#cebffa',
   },
   {
-    id: 'a8',
-    type: 'generation' as const,
-    initials: 'JK',
-    description: 'James K. generated a LinkedIn Post',
-    detail: 'Team culture spotlight — design team',
-    score: 89,
-    timestamp: '5 hr ago',
+    label: 'Content Generated',
+    value: String(analyticsData.totalGenerated.week),
+    suffix: '',
+    change: '\u2191 23% vs last week',
+    changeColor: '#4a7c59',
+    dot: '#ccfdcf',
   },
   {
-    id: 'a9',
-    type: 'flag' as const,
-    initials: 'MR',
-    description: 'Q1 infographic by Mike R. was flagged',
-    detail: 'Chart uses default palette instead of brand',
-    score: 58,
-    timestamp: '6 hr ago',
+    label: 'Avg Alignment',
+    value: '91',
+    suffix: '%',
+    change: '\u2191 3% vs last month',
+    changeColor: '#4a7c59',
+    dot: '#d7e9ff',
   },
   {
-    id: 'a10',
-    type: 'generation' as const,
-    initials: 'AP',
-    description: 'Aisha P. generated an Instagram Story',
-    detail: 'Weekend wellness tips carousel',
-    score: 86,
-    timestamp: 'Yesterday',
+    label: 'Active Users',
+    value: '18',
+    suffix: '',
+    change: '\u2192 Same as last week',
+    changeColor: 'rgba(35,31,35,0.48)',
+    dot: '#f4e7c7',
   },
 ]
 
 // ---------------------------------------------------------------------------
-// Needs Attention items
+// Quick access cards
 // ---------------------------------------------------------------------------
-const pendingCount = flaggedItems.filter((f) => f.status === 'pending').length
-const attentionItems = [
+const quickAccessCards = [
   {
-    id: 'n1',
-    icon: AlertTriangle,
-    label: `${pendingCount} items pending review`,
-    path: '/guard',
-  },
-  {
-    id: 'n2',
-    icon: Fingerprint,
-    label: 'Connect Figma plugin',
+    title: 'Brand Intelligence',
+    description: 'Manage your brand DNA and identity system',
+    icon: '\uD83E\uDDEC',
+    bg: '#cebffa',
     path: '/brand-system',
   },
   {
-    id: 'n3',
-    icon: PenTool,
-    label: 'Voice guidelines need update',
-    path: '/brand-system',
+    title: 'Content Studio',
+    description: 'Generate on-brand content instantly',
+    icon: '\u2728',
+    bg: '#ccfdcf',
+    path: '/create',
   },
   {
-    id: 'n4',
-    icon: Shield,
-    label: 'Review compliance thresholds',
+    title: 'Analytics',
+    description: 'Track performance and brand health',
+    icon: '\uD83D\uDCC8',
+    bg: '#f4e7c7',
+    path: '/pulse',
+  },
+  {
+    title: 'Brand Guard',
+    description: 'Review flagged content and compliance',
+    icon: '\uD83D\uDEE1\uFE0F',
+    bg: '#d7e9ff',
     path: '/guard',
   },
 ]
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Compliance stats
 // ---------------------------------------------------------------------------
-function scoreColor(score: number): string {
-  if (score >= 80) return 'var(--color-signal-green)'
-  if (score >= 60) return 'var(--color-signal-amber)'
-  return 'var(--color-signal-red)'
+const compliancePercent = analyticsData.passedPercent
+const _flaggedItems = flaggedItems
+const totalReviewed = _flaggedItems.length
+const passedCount = Math.round((compliancePercent / 100) * totalReviewed)
+const failedCount = totalReviewed - passedCount
+
+// ---------------------------------------------------------------------------
+// Card shared style
+// ---------------------------------------------------------------------------
+const cardStyle: React.CSSProperties = {
+  backgroundColor: 'var(--color-surface)',
+  border: '1px solid rgba(35,31,35,0.08)',
+  borderRadius: 16,
 }
 
-function buildSparklinePath(scores: number[]): string {
-  const min = Math.min(...scores)
-  const max = Math.max(...scores)
-  const range = max - min || 1
-  const width = 96
-  const height = 28
-  const step = width / (scores.length - 1)
-
-  return scores
-    .map((s, i) => {
-      const x = i * step
-      const y = height - ((s - min) / range) * height
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join(' ')
-}
+const cardHoverClass = 'transition-all duration-200'
 
 // ---------------------------------------------------------------------------
-// Content format options for Quick Create
-// ---------------------------------------------------------------------------
-const formatOptions = [
-  'Instagram Post',
-  'Instagram Story',
-  'LinkedIn Post',
-  'Facebook Post',
-  'X Post',
-  'YouTube Thumbnail',
-  'Pinterest Pin',
-]
-
-// ---------------------------------------------------------------------------
-// Command Page
+// Dashboard Page
 // ---------------------------------------------------------------------------
 export default function Command() {
-  const [selectedFormat, setSelectedFormat] = useState('Instagram Post')
-  const [prompt, setPrompt] = useState('')
-
-  const overallScore = 84
-  const complianceRate = analyticsData.passedPercent
-  const activeFlagCount = flaggedItems.filter(
-    (f) => f.status === 'pending' || f.status === 'investigating',
-  ).length
-
-  // Last 7 weeks of scores for the sparkline
-  const sparklineScores = analyticsData.weeklyTrend.slice(-7).map((w) => w.score)
-  const sparklinePath = buildSparklinePath(sparklineScores)
-
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-10">
       {/* ================================================================
-          1. Brand Health Bar
+          Page Header
           ================================================================ */}
-      <div className="bg-surface rounded-xl border border-border p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          {/* Brand Score */}
-          <div className="flex-1 min-w-0">
-            <p className="caption mb-1">BRAND SCORE</p>
-            <p
-              className="text-ink leading-none"
-              style={{ fontSize: 48, fontWeight: 600, letterSpacing: '-2px' }}
-            >
-              {overallScore}
-            </p>
-            {/* Progress bar */}
-            <div className="mt-3 h-1 w-full max-w-[160px] rounded-full bg-surface" style={{ backgroundColor: 'rgba(15,15,15,0.06)' }}>
-              <div
-                className="h-1 rounded-full"
+      <div>
+        <h1
+          style={{
+            fontSize: 28,
+            fontWeight: 500,
+            color: 'var(--color-ink)',
+            margin: 0,
+            lineHeight: 1.2,
+          }}
+        >
+          Dashboard
+        </h1>
+        <p
+          className="mt-2"
+          style={{
+            fontSize: 15,
+            fontWeight: 300,
+            color: 'rgba(35,31,35,0.48)',
+            margin: 0,
+          }}
+        >
+          Welcome back, Alex. Here's your brand overview.
+        </p>
+      </div>
+
+      {/* ================================================================
+          Metrics Row
+          ================================================================ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {metrics.map((m) => (
+          <div
+            key={m.label}
+            className={`${cardHoverClass} p-5`}
+            style={cardStyle}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <span
+                className="inline-block w-2 h-2 rounded-full"
+                style={{ backgroundColor: m.dot }}
+              />
+              <span className="caption">{m.label.toUpperCase()}</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span
                 style={{
-                  width: `${overallScore}%`,
-                  backgroundColor: 'var(--color-signal-green)',
+                  fontSize: 32,
+                  fontWeight: 500,
+                  color: 'var(--color-ink)',
+                  lineHeight: 1,
                 }}
-              />
-            </div>
-          </div>
-
-          {/* Compliance Rate */}
-          <div className="flex-1 min-w-0">
-            <p className="caption mb-1">COMPLIANCE</p>
-            <div className="flex items-end gap-4">
-              <p
-                className="text-ink leading-none"
-                style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-1px' }}
               >
-                {complianceRate}%
-              </p>
-              <svg
-                width={96}
-                height={28}
-                viewBox="0 0 96 28"
-                fill="none"
-                className="mb-1"
-              >
-                <path
-                  d={sparklinePath}
-                  stroke="var(--color-signal-green)"
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="none"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {/* Active Flags */}
-          <div className="flex-1 min-w-0">
-            <p className="caption mb-1">ACTIVE FLAGS</p>
-            <Link to="/guard" className="inline-flex items-center gap-2 group">
-              <p
-                className="text-ink leading-none"
-                style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-1px' }}
-              >
-                {activeFlagCount}
-              </p>
-              {activeFlagCount > 0 && (
+                {m.value}
+              </span>
+              {m.suffix && (
                 <span
-                  className="inline-block w-2 h-2 rounded-full"
-                  style={{ backgroundColor: 'var(--color-signal-red)' }}
-                />
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 400,
+                    color: 'rgba(35,31,35,0.48)',
+                  }}
+                >
+                  {m.suffix}
+                </span>
               )}
-              <ArrowRight
-                size={16}
-                strokeWidth={1.5}
-                className="text-muted opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-              />
-            </Link>
+            </div>
+            <p
+              className="mt-2"
+              style={{
+                fontSize: 13,
+                fontWeight: 400,
+                color: m.changeColor,
+                margin: 0,
+                marginTop: 8,
+              }}
+            >
+              {m.change}
+            </p>
           </div>
+        ))}
+      </div>
+
+      {/* ================================================================
+          Quick Access
+          ================================================================ */}
+      <div>
+        <p className="caption mb-4">QUICK ACCESS</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {quickAccessCards.map((card) => (
+            <Link
+              key={card.title}
+              to={card.path}
+              className={`${cardHoverClass} p-5 flex flex-col no-underline group`}
+              style={{
+                ...cardStyle,
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement
+                el.style.boxShadow = '0px 4px 40px rgba(0,0,0,0.06)'
+                el.style.transform = 'translateY(-4px)'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement
+                el.style.boxShadow = 'none'
+                el.style.transform = 'translateY(0)'
+              }}
+            >
+              <div
+                className="flex items-center justify-center mb-4"
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  backgroundColor: card.bg,
+                  fontSize: 20,
+                }}
+              >
+                {card.icon}
+              </div>
+              <span
+                style={{
+                  fontSize: 16,
+                  fontWeight: 500,
+                  color: 'var(--color-ink)',
+                }}
+              >
+                {card.title}
+              </span>
+              <span
+                className="mt-1"
+                style={{
+                  fontSize: 13,
+                  fontWeight: 300,
+                  color: 'rgba(35,31,35,0.48)',
+                }}
+              >
+                {card.description}
+              </span>
+              <span
+                className="mt-auto pt-4"
+                style={{
+                  fontSize: 18,
+                  color: 'rgba(35,31,35,0.48)',
+                }}
+              >
+                &rarr;
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
 
       {/* ================================================================
-          2. Main Content — 60 / 40 split
+          Two-Column Bottom Section
           ================================================================ */}
-      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ----------------------------------------------------------
-            LEFT — Activity Feed
+            Recent Activity
             ---------------------------------------------------------- */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <p className="caption">RECENT ACTIVITY</p>
+        <div className="p-6" style={cardStyle}>
+          <div className="flex items-center justify-between mb-5">
+            <span
+              style={{
+                fontSize: 16,
+                fontWeight: 500,
+                color: 'var(--color-ink)',
+              }}
+            >
+              Recent Activity
+            </span>
             <Link
               to="/pulse"
-              className="text-[13px] text-muted hover:text-ink transition-colors duration-150 flex items-center gap-1"
-              style={{ fontWeight: 500 }}
+              style={{
+                fontSize: 13,
+                fontWeight: 400,
+                color: 'rgba(35,31,35,0.48)',
+                textDecoration: 'none',
+              }}
             >
-              View all <ArrowRight size={14} strokeWidth={1.5} />
+              View all
             </Link>
           </div>
 
-          <div className="max-h-[600px] overflow-y-auto pr-1">
+          <div className="flex flex-col gap-0">
             {activityFeed.map((event) => (
               <div
                 key={event.id}
-                className="flex items-start gap-3 py-3 border-b border-border"
+                className="flex items-start gap-3 py-3"
+                style={{
+                  borderBottom: '1px solid rgba(35,31,35,0.06)',
+                }}
               >
-                {/* Avatar */}
-                <div
-                  className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[11px]"
+                <span
+                  className="shrink-0 mt-2"
                   style={{
-                    fontWeight: 600,
-                    backgroundColor: 'rgba(45, 91, 246, 0.1)',
-                    color: 'var(--color-accent)',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: event.dot,
+                    display: 'inline-block',
                   }}
-                >
-                  {event.initials}
-                </div>
-
-                {/* Content */}
+                />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] text-ink" style={{ fontWeight: 450 }}>
-                    {event.description}
+                  <p
+                    className="m-0"
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 400,
+                      color: 'var(--color-ink)',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {event.text}
                   </p>
-                  <p className="text-[13px] text-muted mt-0.5 truncate">
-                    {event.detail}
-                  </p>
-                </div>
-
-                {/* Right side — score badge + timestamp */}
-                <div className="shrink-0 flex flex-col items-end gap-1">
-                  {event.score !== undefined && (
-                    <span
-                      className="font-mono text-[12px] px-1.5 py-0.5 rounded"
-                      style={{
-                        fontWeight: 500,
-                        color: scoreColor(event.score),
-                        backgroundColor:
-                          event.score >= 80
-                            ? 'rgba(26, 135, 84, 0.08)'
-                            : event.score >= 60
-                              ? 'rgba(217, 119, 6, 0.08)'
-                              : 'rgba(220, 53, 69, 0.08)',
-                      }}
-                    >
-                      {event.score}
-                    </span>
-                  )}
-                  {event.type === 'flag' && event.score === undefined && (
-                    <span
-                      className="inline-block w-2 h-2 rounded-full"
-                      style={{ backgroundColor: 'var(--color-signal-red)' }}
-                    />
-                  )}
-                  <span className="font-mono text-[11px] text-muted whitespace-nowrap">
+                  <p
+                    className="m-0 mt-0.5"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: 'rgba(35,31,35,0.48)',
+                      fontFamily: "'Fragment Mono', monospace",
+                    }}
+                  >
                     {event.timestamp}
-                  </span>
+                  </p>
                 </div>
               </div>
             ))}
@@ -352,79 +400,159 @@ export default function Command() {
         </div>
 
         {/* ----------------------------------------------------------
-            RIGHT — Sidebar
+            Brand Compliance
             ---------------------------------------------------------- */}
-        <div className="flex flex-col gap-8">
-          {/* Quick Create Card */}
-          <div className="bg-surface rounded-xl border border-border p-6">
-            <h3
-              className="text-ink mb-4"
-              style={{ fontSize: 18, fontWeight: 600 }}
+        <div className="p-6" style={cardStyle}>
+          <span
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+              color: 'var(--color-ink)',
+            }}
+          >
+            Brand Compliance
+          </span>
+
+          {/* Compliance ring */}
+          <div className="flex items-center justify-center my-8">
+            <div
+              style={{
+                position: 'relative',
+                width: 140,
+                height: 140,
+                borderRadius: '50%',
+                background: `conic-gradient(#4a7c59 0% ${compliancePercent}%, rgba(35,31,35,0.08) ${compliancePercent}% 100%)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              Quick Create
-            </h3>
-
-            <select
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full bg-white border border-border rounded-lg h-10 px-3 text-[13px] text-ink mb-3 outline-none transition-colors duration-150 hover:border-border-hover focus:border-accent"
-              style={{ fontWeight: 450 }}
-            >
-              {formatOptions.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-
-            <textarea
-              rows={3}
-              placeholder="Describe what you need..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="w-full bg-white border border-border rounded-lg px-3 py-2 text-[13px] text-ink mb-3 outline-none resize-none transition-colors duration-150 hover:border-border-hover focus:border-accent"
-              style={{ fontWeight: 400 }}
-            />
-
-            <Link to="/create">
-              <button
-                className="bg-ink text-white h-10 px-4 rounded-lg text-[13px] inline-flex items-center gap-2 transition-opacity duration-150 hover:opacity-80"
-                style={{ fontWeight: 500 }}
+              <div
+                style={{
+                  width: 108,
+                  height: 108,
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--color-surface)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                }}
               >
-                <Sparkles size={16} strokeWidth={1.5} />
-                Generate
-              </button>
-            </Link>
+                <span
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 500,
+                    color: 'var(--color-ink)',
+                    lineHeight: 1,
+                  }}
+                >
+                  {compliancePercent}%
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 400,
+                    color: 'rgba(35,31,35,0.48)',
+                    marginTop: 2,
+                  }}
+                >
+                  compliant
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Needs Attention */}
-          <div>
-            <p className="caption mb-3">NEEDS ATTENTION</p>
-            <div className="flex flex-col">
-              {attentionItems.map((item) => (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className="flex items-center gap-3 py-3 px-2 -mx-2 rounded-lg transition-colors duration-150 hover:bg-surface group"
-                >
-                  <item.icon
-                    size={16}
-                    strokeWidth={1.5}
-                    className="shrink-0 text-muted"
-                  />
-                  <span
-                    className="flex-1 text-[14px] text-ink"
-                    style={{ fontWeight: 450 }}
-                  >
-                    {item.label}
-                  </span>
-                  <ChevronRight
-                    size={16}
-                    strokeWidth={1.5}
-                    className="shrink-0 text-muted opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-                  />
-                </Link>
-              ))}
+          {/* Stats list */}
+          <div className="flex flex-col gap-3">
+            <div
+              className="flex items-center justify-between py-2"
+              style={{ borderBottom: '1px solid rgba(35,31,35,0.06)' }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: 'rgba(35,31,35,0.64)',
+                }}
+              >
+                Total Reviewed
+              </span>
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: 'var(--color-ink)',
+                }}
+              >
+                {totalReviewed}
+              </span>
+            </div>
+            <div
+              className="flex items-center justify-between py-2"
+              style={{ borderBottom: '1px solid rgba(35,31,35,0.06)' }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: 'rgba(35,31,35,0.64)',
+                }}
+              >
+                Passed
+              </span>
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: '#4a7c59',
+                }}
+              >
+                {passedCount}
+              </span>
+            </div>
+            <div
+              className="flex items-center justify-between py-2"
+              style={{ borderBottom: '1px solid rgba(35,31,35,0.06)' }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: 'rgba(35,31,35,0.64)',
+                }}
+              >
+                Flagged
+              </span>
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: '#e94560',
+                }}
+              >
+                {failedCount}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: 'rgba(35,31,35,0.64)',
+                }}
+              >
+                Pass Rate
+              </span>
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: 'var(--color-ink)',
+                }}
+              >
+                {compliancePercent}%
+              </span>
             </div>
           </div>
         </div>

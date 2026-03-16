@@ -1,283 +1,358 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Sparkles, Download, Send, ChevronDown,
-  RefreshCw, Image, Minus, Plus,
-  Fingerprint, Eye, EyeOff, Check,
-} from 'lucide-react'
-import {
   contentFormats, brandColors, brandVoice, brandProfile,
   generationHistory,
 } from '../data/mockData'
+
+const formatMeta: Record<string, { icon: string; ratio: string }> = {
+  'instagram-post': { icon: '📸', ratio: '1:1' },
+  'instagram-story': { icon: '📱', ratio: '9:16' },
+  'facebook-post': { icon: '📘', ratio: '1.91:1' },
+  'linkedin-post': { icon: '💼', ratio: '1.91:1' },
+  'x-post': { icon: '𝕏', ratio: '16:9' },
+  'pinterest-pin': { icon: '📌', ratio: '2:3' },
+  'youtube-thumbnail': { icon: '▶', ratio: '16:9' },
+  'custom': { icon: '⚙', ratio: 'Any' },
+}
+
+const hashtagList = ['#ShipFaster', '#BuildSmarter', '#ContentStudio', '#BrandAligned']
 
 export default function Create() {
   const [selectedFormat, setSelectedFormat] = useState('instagram-post')
   const [prompt, setPrompt] = useState('')
   const [generated, setGenerated] = useState(true)
-  const [precisionMode, setPrecisionMode] = useState(false)
-  const [headline, setHeadline] = useState('Spring Wellness Collection')
+  const [brandContextOpen, setBrandContextOpen] = useState(true)
+  const [headline, setHeadline] = useState('Ship faster. Build smarter.')
   const [bodyCopy, setBodyCopy] = useState(
     'Science-backed formulations designed for your daily routine. Made with clinically tested ingredients.'
   )
-  const [hashtags, setHashtags] = useState('#MeridianLabs #WellnessScience #SpringCollection')
   const [cta, setCta] = useState('Shop the Collection')
-  const [zoom, setZoom] = useState(100)
-  const [creativity, setCreativity] = useState(65)
-  const [brandAdherence, setBrandAdherence] = useState(85)
-  const [colorOverrides, setColorOverrides] = useState<string[]>(brandColors.map((c) => c.id))
-  const [layerVisibility, setLayerVisibility] = useState({
-    background: true,
-    typography: true,
-    logo: true,
-    cta: true,
-  })
-  const [showDownloadMenu, setShowDownloadMenu] = useState(false)
-
-  const activeFormat = contentFormats.find((f) => f.id === selectedFormat) || contentFormats[0]
-
-  const toggleColorOverride = (id: string) => {
-    setColorOverrides((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    )
-  }
-
-  const toggleLayer = (key: keyof typeof layerVisibility) => {
-    setLayerVisibility((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
-
-  const scoreColor = (score: number) => {
-    if (score >= 85) return '#1a8754'
-    if (score >= 70) return '#d97706'
-    return '#dc3545'
-  }
-
-  const scoreBg = (score: number) => {
-    if (score >= 85) return 'rgba(26,135,84,0.08)'
-    if (score >= 70) return 'rgba(217,119,6,0.08)'
-    return 'rgba(220,53,69,0.08)'
-  }
-
-  const layers = [
-    { key: 'background' as const, label: 'Background' },
-    { key: 'typography' as const, label: 'Typography' },
-    { key: 'logo' as const, label: 'Logo Placement' },
-    { key: 'cta' as const, label: 'CTA Element' },
-  ]
-
-  const captionClass = 'caption mb-2'
-  const precisionCaptionClass = precisionMode
-    ? 'caption mb-2 [color:rgba(255,255,255,0.4)]'
-    : 'caption mb-2'
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-0">
-      {/* LEFT — Control Panel */}
-      <div className="border-b lg:border-b-0 lg:border-r border-border">
-        <div className="flex flex-col gap-6 py-2">
-          {/* Title + Precision Toggle */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-[28px] font-semibold text-ink">Create</h1>
-            <div className="flex items-center rounded-lg overflow-hidden border border-border">
-              <button
-                className="px-3 py-1.5 text-[13px] font-medium transition-colors duration-[120ms]"
-                style={{
-                  backgroundColor: !precisionMode ? '#0f0f0f' : '#f3f3f2',
-                  color: !precisionMode ? '#fff' : 'rgba(15,15,15,0.45)',
-                }}
-                onClick={() => setPrecisionMode(false)}
-              >
-                Standard
-              </button>
-              <button
-                className="px-3 py-1.5 text-[13px] font-medium transition-colors duration-[120ms]"
-                style={{
-                  backgroundColor: precisionMode ? '#0f0f0f' : '#f3f3f2',
-                  color: precisionMode ? '#fff' : 'rgba(15,15,15,0.45)',
-                }}
-                onClick={() => setPrecisionMode(true)}
-              >
-                Precision
-              </button>
-            </div>
-          </div>
+    <div>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1
+          style={{
+            fontSize: 28,
+            fontWeight: 500,
+            color: '#231f23',
+            margin: 0,
+            lineHeight: 1.3,
+          }}
+        >
+          Content Studio
+        </h1>
+        <p
+          style={{
+            fontSize: 15,
+            fontWeight: 300,
+            color: 'rgba(35,31,35,0.48)',
+            margin: '4px 0 0 0',
+          }}
+        >
+          Create on-brand content with AI-powered generation and real-time brand alignment.
+        </p>
+      </div>
 
-          {/* Format Selector */}
-          <div>
-            <div className={captionClass}>Format</div>
-            <select
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-[14px] appearance-none cursor-pointer transition-colors duration-[120ms] text-ink"
-            >
-              {contentFormats.map((f) => (
-                <option key={f.id} value={f.id}>
+      {/* Format Selector */}
+      <div className="mb-8">
+        <div className="grid grid-cols-4 lg:grid-cols-8 gap-3">
+          {contentFormats.map((f) => {
+            const meta = formatMeta[f.id]
+            const isSelected = selectedFormat === f.id
+            return (
+              <button
+                key={f.id}
+                onClick={() => setSelectedFormat(f.id)}
+                className="flex flex-col items-center gap-1 cursor-pointer"
+                style={{
+                  backgroundColor: isSelected ? 'rgba(204,253,207,0.15)' : '#ffffff',
+                  border: `1px solid ${isSelected ? '#ccfdcf' : 'rgba(35,31,35,0.08)'}`,
+                  borderRadius: 12,
+                  padding: '14px 10px',
+                  boxShadow: isSelected ? '0 0 0 2px #ccfdcf' : 'none',
+                  transition: 'all 150ms ease',
+                }}
+              >
+                <span style={{ fontSize: 20, lineHeight: 1 }}>{meta?.icon}</span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: '#231f23',
+                    textAlign: 'center',
+                    lineHeight: 1.3,
+                  }}
+                >
                   {f.label}
-                </option>
-              ))}
-            </select>
-            <div className="mt-1.5 font-mono text-[13px] text-muted">
-              {activeFormat.width} &times; {activeFormat.height}px
-            </div>
-          </div>
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Fragment Mono', monospace",
+                    fontSize: 9,
+                    color: 'rgba(35,31,35,0.48)',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.75,
+                  }}
+                >
+                  {meta?.ratio}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
-          {/* Prompt Input */}
-          <div>
-            <div className={captionClass}>Prompt</div>
+      {/* Two-Panel Studio Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Controls Panel */}
+        <div className="flex flex-col gap-6">
+          {/* Prompt Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(35,31,35,0.08)',
+              borderRadius: 16,
+              padding: 24,
+            }}
+          >
+            <label
+              style={{
+                fontFamily: "'Fragment Mono', monospace",
+                fontSize: 11,
+                fontWeight: 400,
+                color: 'rgba(35,31,35,0.48)',
+                textTransform: 'uppercase',
+                letterSpacing: 0.75,
+                display: 'block',
+                marginBottom: 10,
+              }}
+            >
+              DESCRIBE YOUR CONTENT
+            </label>
             <textarea
-              rows={5}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe what you need..."
-              className="w-full bg-surface border border-border rounded-xl p-4 text-[14px] text-ink resize-none transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
+              placeholder="Describe the content you want to create..."
+              className="w-full resize-none"
+              style={{
+                backgroundColor: 'rgba(35,31,35,0.04)',
+                border: '1px solid rgba(35,31,35,0.08)',
+                borderRadius: 8,
+                padding: 14,
+                minHeight: 120,
+                fontSize: 14,
+                color: '#231f23',
+                outline: 'none',
+                lineHeight: 1.6,
+              }}
             />
             <button
-              className="mt-3 w-full h-10 bg-ink text-white rounded-lg text-[13px] font-medium flex items-center justify-center gap-2 transition-opacity duration-[120ms] hover:opacity-90"
               onClick={() => setGenerated(true)}
+              className="w-full flex items-center justify-center gap-2 mt-4"
+              style={{
+                backgroundColor: '#231f23',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 10,
+                padding: '12px 0',
+                fontSize: 15,
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
             >
-              <Sparkles size={16} strokeWidth={1.5} />
               Generate
             </button>
           </div>
 
-          {/* Brand Context */}
-          <div>
-            <div className={captionClass}>Brand Context</div>
-            <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Fingerprint size={16} strokeWidth={1.5} className="text-muted" />
-                <span className="text-[14px] font-semibold text-ink">
-                  {brandProfile.name}
+          {/* Brand Context Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(35,31,35,0.08)',
+              borderRadius: 16,
+              overflow: 'hidden',
+            }}
+          >
+            <button
+              onClick={() => setBrandContextOpen(!brandContextOpen)}
+              className="w-full flex items-center justify-between"
+              style={{
+                padding: '18px 24px',
+                cursor: 'pointer',
+                border: 'none',
+                backgroundColor: 'transparent',
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: '#231f23',
+                  }}
+                >
+                  Brand Context Applied
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Fragment Mono', monospace",
+                    fontSize: 10,
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.75,
+                    color: '#6b21a8',
+                    backgroundColor: 'rgba(107,33,168,0.10)',
+                    borderRadius: 6,
+                    padding: '3px 8px',
+                  }}
+                >
+                  Score 87
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                {brandColors.map((c) => (
-                  <div
-                    key={c.id}
-                    className="rounded-full shrink-0"
-                    style={{ width: 12, height: 12, backgroundColor: c.hex }}
-                  />
-                ))}
-              </div>
-              <div className="text-[14px] text-muted">
-                {brandVoice.tone.join(', ')}
-              </div>
-              <Link
-                to="/brand-system"
-                className="text-[13px] font-medium text-accent transition-colors duration-[120ms] hover:opacity-80"
+              <span
+                style={{
+                  fontSize: 14,
+                  color: 'rgba(35,31,35,0.48)',
+                  transform: brandContextOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 200ms ease',
+                  display: 'inline-block',
+                }}
               >
-                View brand system &rarr;
-              </Link>
-            </div>
+                ▾
+              </span>
+            </button>
+
+            {brandContextOpen && (
+              <div
+                style={{
+                  padding: '0 24px 20px 24px',
+                  borderTop: '1px solid rgba(35,31,35,0.06)',
+                }}
+              >
+                <div className="flex flex-col gap-4 pt-4">
+                  {/* Colors */}
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.64)' }}>Colors</span>
+                    <div className="flex items-center gap-1.5">
+                      {brandColors.slice(0, 5).map((c) => (
+                        <div
+                          key={c.id}
+                          style={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: '50%',
+                            backgroundColor: c.hex,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {/* Voice Tone */}
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.64)' }}>Voice Tone</span>
+                    <span style={{ fontSize: 13, color: '#231f23' }}>
+                      {brandVoice.tone.slice(0, 2).join(', ')}
+                    </span>
+                  </div>
+                  {/* Primary Logo */}
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.64)' }}>Primary Logo</span>
+                    <span style={{ fontSize: 13, color: '#231f23' }}>{brandProfile.name}</span>
+                  </div>
+                  {/* Typography */}
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.64)' }}>Typography</span>
+                    <span style={{ fontSize: 13, color: '#231f23' }}>DM Serif + Inter</span>
+                  </div>
+                  {/* Link */}
+                  <Link
+                    to="/brand-system"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: '#4a7c59',
+                      textDecoration: 'none',
+                      marginTop: 4,
+                    }}
+                  >
+                    View Brand Intelligence →
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Precision Mode Controls */}
-          {precisionMode && (
-            <>
-              {/* Style Controls */}
-              <div>
-                <div className={captionClass}>Style Controls</div>
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[13px] text-ink">Creativity</span>
-                      <span className="font-mono text-[13px] text-muted">{creativity}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={creativity}
-                      onChange={(e) => setCreativity(Number(e.target.value))}
-                      className="w-full accent-ink h-1"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[13px] text-ink">Brand Adherence</span>
-                      <span className="font-mono text-[13px] text-muted">{brandAdherence}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={brandAdherence}
-                      onChange={(e) => setBrandAdherence(Number(e.target.value))}
-                      className="w-full accent-ink h-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Color Overrides */}
-              <div>
-                <div className={captionClass}>Color Overrides</div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  {brandColors.map((c) => (
-                    <button
-                      key={c.id}
-                      className="rounded-full relative flex items-center justify-center transition-transform duration-[120ms] hover:scale-110"
-                      style={{ width: 24, height: 24, backgroundColor: c.hex }}
-                      onClick={() => toggleColorOverride(c.id)}
-                    >
-                      {colorOverrides.includes(c.id) && (
-                        <Check size={12} strokeWidth={2.5} color="#fff" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Layers */}
-              <div>
-                <div className={captionClass}>Layers</div>
-                <div className="bg-surface border border-border rounded-xl overflow-hidden">
-                  {layers.map((layer, i) => (
-                    <div
-                      key={layer.key}
-                      className="flex items-center justify-between px-4 py-2.5"
-                      style={{
-                        borderTop: i > 0 ? '1px solid rgba(15,15,15,0.06)' : undefined,
-                      }}
-                    >
-                      <span className="text-[13px] text-ink">{layer.label}</span>
-                      <button
-                        className="transition-opacity duration-[120ms] hover:opacity-70"
-                        onClick={() => toggleLayer(layer.key)}
-                      >
-                        {layerVisibility[layer.key] ? (
-                          <Eye size={16} strokeWidth={1.5} className="text-ink" />
-                        ) : (
-                          <EyeOff size={16} strokeWidth={1.5} style={{ color: 'rgba(15,15,15,0.3)' }} />
-                        )}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Generation History */}
-          <div>
-            <div className={captionClass}>History</div>
+          {/* Generation History Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(35,31,35,0.08)',
+              borderRadius: 16,
+              padding: 24,
+            }}
+          >
+            <h3
+              style={{
+                fontSize: 14,
+                fontWeight: 500,
+                color: '#231f23',
+                margin: '0 0 16px 0',
+              }}
+            >
+              Recent Generations
+            </h3>
             <div className="flex flex-col">
               {generationHistory.slice(0, 5).map((item, i) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 py-2"
+                  className="flex items-center gap-3"
                   style={{
-                    borderTop: i > 0 ? '1px solid rgba(15,15,15,0.06)' : undefined,
+                    padding: '10px 0',
+                    borderTop: i > 0 ? '1px solid rgba(35,31,35,0.06)' : undefined,
                   }}
                 >
-                  <span className="flex-1 truncate text-[13px] text-ink">
-                    {item.prompt}
-                  </span>
-                  <span className="caption shrink-0">{item.format}</span>
-                  <span
-                    className="font-mono shrink-0 rounded px-1.5 py-0.5 text-[13px]"
+                  {/* Thumbnail */}
+                  <div
                     style={{
-                      color: scoreColor(item.score),
-                      backgroundColor: scoreBg(item.score),
+                      width: 40,
+                      height: 40,
+                      borderRadius: 8,
+                      backgroundColor: 'rgba(35,31,35,0.06)',
+                      flexShrink: 0,
+                    }}
+                  />
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <div
+                      className="truncate"
+                      style={{ fontSize: 13, color: '#231f23', fontWeight: 400 }}
+                    >
+                      {item.prompt}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'Fragment Mono', monospace",
+                        fontSize: 10,
+                        color: 'rgba(35,31,35,0.48)',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.75,
+                        marginTop: 2,
+                      }}
+                    >
+                      {item.format} · {item.date}
+                    </div>
+                  </div>
+                  {/* Score */}
+                  <span
+                    style={{
+                      fontFamily: "'Fragment Mono', monospace",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: '#4a7c59',
+                      flexShrink: 0,
                     }}
                   >
                     {item.score}
@@ -287,196 +362,372 @@ export default function Create() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* RIGHT — Canvas Area */}
-      <div
-        className="flex flex-col gap-4 py-4 lg:pl-6"
-        style={{ backgroundColor: precisionMode ? '#1a1a1a' : undefined }}
-      >
-        {/* Floating Toolbar */}
-        {generated && (
-          <div className="flex justify-center">
-            <div
-              className="bg-white rounded-xl border border-border px-4 py-2 flex items-center gap-3"
-              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-            >
+        {/* Right Preview Panel */}
+        <div className="flex flex-col gap-6">
+          {/* Preview Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(35,31,35,0.08)',
+              borderRadius: 16,
+              padding: 24,
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-5">
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#231f23' }}>
+                Generated Preview
+              </span>
               <span
-                className="font-mono rounded px-2 py-0.5 text-[13px] font-medium"
+                className="flex items-center gap-1.5"
                 style={{
-                  color: '#1a8754',
-                  backgroundColor: 'rgba(26,135,84,0.08)',
+                  backgroundColor: 'rgba(74,124,89,0.10)',
+                  borderRadius: 999,
+                  padding: '4px 12px 4px 8px',
                 }}
               >
-                94
-              </span>
-              <div className="w-px h-5 bg-border" />
-              <button className="flex items-center gap-1.5 border border-border rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors duration-[120ms] hover:bg-surface">
-                <RefreshCw size={14} strokeWidth={1.5} />
-                Regenerate
-              </button>
-              <div className="relative">
-                <button
-                  className="flex items-center gap-1.5 border border-border rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors duration-[120ms] hover:bg-surface"
-                  onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: '#4a7c59',
+                    display: 'inline-block',
+                    boxShadow: '0 0 0 2px rgba(74,124,89,0.25)',
+                  }}
+                />
+                <span
+                  style={{
+                    fontFamily: "'Fragment Mono', monospace",
+                    fontSize: 10,
+                    fontWeight: 500,
+                    color: '#4a7c59',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.75,
+                  }}
                 >
-                  <Download size={14} strokeWidth={1.5} />
-                  Download
-                  <ChevronDown size={12} strokeWidth={1.5} />
-                </button>
-                {showDownloadMenu && (
-                  <div
-                    className="absolute top-full mt-1 right-0 bg-white rounded-lg border border-border py-1 z-10 min-w-[120px]"
-                    style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                  >
-                    {['PNG', 'JPG', 'SVG', 'PDF'].map((fmt) => (
-                      <button
-                        key={fmt}
-                        className="w-full text-left px-3 py-1.5 text-[13px] text-ink transition-colors duration-[120ms] hover:bg-surface"
-                        onClick={() => setShowDownloadMenu(false)}
-                      >
-                        {fmt}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button className="flex items-center gap-1.5 border border-border rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted transition-colors duration-[120ms] hover:bg-surface">
-                <Send size={14} strokeWidth={1.5} />
-                Send to Figma
-              </button>
+                  92% ALIGNED
+                </span>
+              </span>
             </div>
-          </div>
-        )}
 
-        {/* Canvas */}
-        <div className="flex items-center justify-center">
-          {generated ? (
-            <div
-              className="relative overflow-hidden rounded-xl w-full"
-              style={{
-                aspectRatio: `${activeFormat.width} / ${activeFormat.height}`,
-                maxWidth: Math.min(activeFormat.width, 560),
-                background: `linear-gradient(135deg, ${brandColors[0].hex}, ${brandColors[1].hex})`,
-                transform: `scale(${zoom / 100})`,
-                transformOrigin: 'center',
-              }}
-            >
-              <div className="absolute inset-0 flex flex-col justify-between p-8">
-                {/* Top — Brand name */}
-                <div className="text-[14px] font-semibold text-white">
+            {/* Generated Graphic */}
+            {generated ? (
+              <div
+                className="w-full flex flex-col justify-between relative overflow-hidden"
+                style={{
+                  aspectRatio: '1 / 1',
+                  background: 'linear-gradient(160deg, #231f23 0%, #3a2f3a 100%)',
+                  borderRadius: 12,
+                  padding: 32,
+                }}
+              >
+                {/* Top: Logo */}
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.7)',
+                    letterSpacing: 1.5,
+                    textTransform: 'uppercase',
+                  }}
+                >
                   {brandProfile.name}
                 </div>
 
-                {/* Center — Headline + Body */}
+                {/* Center: Headline + subtext */}
                 <div className="flex flex-col items-center text-center gap-3">
-                  <h2 className="text-[28px] font-semibold text-white">{headline}</h2>
+                  <h2
+                    style={{
+                      fontSize: 28,
+                      fontWeight: 600,
+                      color: '#ffffff',
+                      margin: 0,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {headline}
+                  </h2>
                   <p
-                    className="text-[14px] text-white/80"
-                    style={{ maxWidth: '70%' }}
+                    style={{
+                      fontSize: 14,
+                      color: 'rgba(255,255,255,0.6)',
+                      maxWidth: '75%',
+                      margin: 0,
+                      lineHeight: 1.6,
+                    }}
                   >
                     {bodyCopy}
                   </p>
                 </div>
 
-                {/* Bottom — CTA + Logo */}
-                <div className="flex items-end justify-between">
-                  <div className="rounded-lg px-4 py-2 bg-white text-ink text-[14px] font-medium">
-                    {cta}
-                  </div>
-                  <div
-                    className="rounded-full"
+                {/* Bottom: CTA + accent bar */}
+                <div className="flex flex-col items-center gap-4">
+                  <button
                     style={{
-                      width: 32,
-                      height: 32,
-                      backgroundColor: 'rgba(255,255,255,0.25)',
-                      border: '1px solid rgba(255,255,255,0.4)',
+                      backgroundColor: '#ffffff',
+                      color: '#231f23',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '10px 28px',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {cta}
+                  </button>
+                </div>
+
+                {/* Accent bar gradient at bottom */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    background: 'linear-gradient(90deg, #4a7c59, #ccfdcf, #D4A373)',
+                  }}
+                />
+              </div>
+            ) : (
+              <div
+                className="w-full flex items-center justify-center"
+                style={{
+                  aspectRatio: '1 / 1',
+                  backgroundColor: 'rgba(35,31,35,0.04)',
+                  borderRadius: 12,
+                }}
+              >
+                <span style={{ fontSize: 14, color: 'rgba(35,31,35,0.48)' }}>
+                  Enter a prompt and click Generate
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Editable Copy Section */}
+          {generated && (
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid rgba(35,31,35,0.08)',
+                borderRadius: 16,
+                padding: 24,
+              }}
+            >
+              <div className="flex flex-col gap-5">
+                {/* Headline */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      style={{
+                        fontFamily: "'Fragment Mono', monospace",
+                        fontSize: 11,
+                        color: 'rgba(35,31,35,0.48)',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.75,
+                      }}
+                    >
+                      HEADLINE
+                    </label>
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.48)', cursor: 'pointer' }}>
+                      ✎
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => setHeadline(e.target.value)}
+                    className="w-full"
+                    style={{
+                      backgroundColor: 'rgba(35,31,35,0.04)',
+                      border: '1px solid rgba(35,31,35,0.08)',
+                      borderRadius: 8,
+                      padding: '10px 14px',
+                      fontSize: 14,
+                      color: '#231f23',
+                      outline: 'none',
                     }}
                   />
                 </div>
+
+                {/* Body Copy */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      style={{
+                        fontFamily: "'Fragment Mono', monospace",
+                        fontSize: 11,
+                        color: 'rgba(35,31,35,0.48)',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.75,
+                      }}
+                    >
+                      BODY COPY
+                    </label>
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.48)', cursor: 'pointer' }}>
+                      ✎
+                    </span>
+                  </div>
+                  <textarea
+                    value={bodyCopy}
+                    onChange={(e) => setBodyCopy(e.target.value)}
+                    rows={3}
+                    className="w-full resize-none"
+                    style={{
+                      backgroundColor: 'rgba(35,31,35,0.04)',
+                      border: '1px solid rgba(35,31,35,0.08)',
+                      borderRadius: 8,
+                      padding: '10px 14px',
+                      fontSize: 14,
+                      color: '#231f23',
+                      outline: 'none',
+                      lineHeight: 1.6,
+                    }}
+                  />
+                </div>
+
+                {/* Call to Action */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      style={{
+                        fontFamily: "'Fragment Mono', monospace",
+                        fontSize: 11,
+                        color: 'rgba(35,31,35,0.48)',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.75,
+                      }}
+                    >
+                      CALL TO ACTION
+                    </label>
+                    <span style={{ fontSize: 13, color: 'rgba(35,31,35,0.48)', cursor: 'pointer' }}>
+                      ✎
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={cta}
+                    onChange={(e) => setCta(e.target.value)}
+                    className="w-full"
+                    style={{
+                      backgroundColor: 'rgba(35,31,35,0.04)',
+                      border: '1px solid rgba(35,31,35,0.08)',
+                      borderRadius: 8,
+                      padding: '10px 14px',
+                      fontSize: 14,
+                      color: '#231f23',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+
+                {/* Hashtags */}
+                <div>
+                  <label
+                    style={{
+                      fontFamily: "'Fragment Mono', monospace",
+                      fontSize: 11,
+                      color: 'rgba(35,31,35,0.48)',
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.75,
+                      display: 'block',
+                      marginBottom: 8,
+                    }}
+                  >
+                    HASHTAGS
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {hashtagList.map((tag) => (
+                      <span
+                        key={tag}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: '#4a7c59',
+                          backgroundColor: 'rgba(74,124,89,0.08)',
+                          borderRadius: 999,
+                          padding: '5px 12px',
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3 py-16">
-              <Image size={48} strokeWidth={1} style={{ color: 'rgba(15,15,15,0.2)' }} />
-              <span className="text-[14px] text-muted">
-                Enter a prompt and click Generate
-              </span>
+          )}
+
+          {/* Export Bar */}
+          {generated && (
+            <div
+              className="flex items-center justify-between flex-wrap gap-3"
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid rgba(35,31,35,0.08)',
+                borderRadius: 16,
+                padding: '16px 24px',
+              }}
+            >
+              {/* Format Buttons */}
+              <div className="flex items-center gap-2">
+                {['PNG', 'JPG', 'SVG', 'PDF'].map((fmt, i) => (
+                  <button
+                    key={fmt}
+                    style={{
+                      backgroundColor: i === 0 ? '#231f23' : 'transparent',
+                      color: i === 0 ? '#ffffff' : '#231f23',
+                      border: i === 0 ? '1px solid #231f23' : '1px solid rgba(35,31,35,0.15)',
+                      borderRadius: 8,
+                      padding: '7px 16px',
+                      fontSize: 12,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {fmt}
+                  </button>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#231f23',
+                    border: '1px solid rgba(35,31,35,0.15)',
+                    borderRadius: 8,
+                    padding: '7px 16px',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Send to Figma
+                </button>
+                <button
+                  style={{
+                    backgroundColor: '#ccfdcf',
+                    color: '#4a7c59',
+                    border: '1px solid rgba(74,124,89,0.15)',
+                    borderRadius: 8,
+                    padding: '7px 16px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Save to Library
+                </button>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Zoom Controls (Precision Mode) */}
-        {precisionMode && generated && (
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2 bg-white rounded-lg border border-border px-3 py-1.5">
-              <button
-                className="transition-opacity duration-[120ms] hover:opacity-70"
-                onClick={() => setZoom((z) => Math.max(25, z - 10))}
-              >
-                <Minus size={16} strokeWidth={1.5} className="text-ink" />
-              </button>
-              <span className="font-mono min-w-[48px] text-center text-[13px] text-ink">
-                {zoom}%
-              </span>
-              <button
-                className="transition-opacity duration-[120ms] hover:opacity-70"
-                onClick={() => setZoom((z) => Math.min(200, z + 10))}
-              >
-                <Plus size={16} strokeWidth={1.5} className="text-ink" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Editable Copy Fields */}
-        {generated && (
-          <div
-            className="border-t border-border pt-4"
-            style={{
-              backgroundColor: precisionMode ? '#1a1a1a' : undefined,
-            }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={`block ${precisionCaptionClass}`}>Headline</label>
-                <input
-                  type="text"
-                  value={headline}
-                  onChange={(e) => setHeadline(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-              <div>
-                <label className={`block ${precisionCaptionClass}`}>Body Copy</label>
-                <input
-                  type="text"
-                  value={bodyCopy}
-                  onChange={(e) => setBodyCopy(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-              <div>
-                <label className={`block ${precisionCaptionClass}`}>Hashtags</label>
-                <input
-                  type="text"
-                  value={hashtags}
-                  onChange={(e) => setHashtags(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-              <div>
-                <label className={`block ${precisionCaptionClass}`}>CTA</label>
-                <input
-                  type="text"
-                  value={cta}
-                  onChange={(e) => setCta(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[14px] text-ink transition-colors duration-[120ms] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

@@ -1,342 +1,495 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import {
-  TrendingUp, Users, FileImage, Shield, ArrowRight,
-} from 'lucide-react'
-import {
-  LineChart, Line, XAxis,
+  AreaChart, Area, LineChart, Line, XAxis,
   Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
 import { analyticsData } from '../data/mockData'
 
 /* ------------------------------------------------------------------ */
-/*  Shared tooltip style                                               */
+/*  Design tokens (inline)                                             */
 /* ------------------------------------------------------------------ */
+const INK = '#231f23'
+const MUTED_48 = 'rgba(35,31,35,0.48)'
+const MUTED_64 = 'rgba(35,31,35,0.64)'
+const MUTED_32 = 'rgba(35,31,35,0.32)'
+const GREEN = '#4a7c59'
+const RED = '#e94560'
+const AMBER = '#d97706'
+const DOT_GREEN = '#ccfdcf'
+const DOT_GOLD = '#f4e7c7'
+const DOT_PURPLE = '#cebffa'
+const DOT_BLUE = '#d7e9ff'
+const DOT_PEACH = '#ffe1d6'
+
+const CARD_STYLE: React.CSSProperties = {
+  backgroundColor: '#ffffff',
+  border: '1px solid rgba(35,31,35,0.08)',
+  borderRadius: 16,
+  padding: 24,
+}
+
+const MONO_LABEL: React.CSSProperties = {
+  fontFamily: 'Fragment Mono, monospace',
+  fontSize: 11,
+  textTransform: 'uppercase',
+  letterSpacing: 0.75,
+  color: MUTED_48,
+}
+
 const tooltipStyle: React.CSSProperties = {
   backgroundColor: '#fff',
   borderRadius: 8,
-  border: '1px solid var(--color-border)',
+  border: '1px solid rgba(35,31,35,0.08)',
   boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
   fontSize: 13,
 }
 
 /* ------------------------------------------------------------------ */
-/*  Reusable sub-components                                            */
+/*  Mock chart data                                                    */
 /* ------------------------------------------------------------------ */
+const volumeData = analyticsData.weeklyTrend.map((w) => ({
+  name: w.week,
+  value: w.count,
+}))
 
-/** Section label using the .caption class from index.css */
-function Caption({ children }: { children: React.ReactNode }) {
-  return <p className="caption mb-4">{children}</p>
-}
+const qualityData = analyticsData.weeklyTrend.map((w) => ({
+  name: w.week,
+  alignment: w.score,
+  flags: Math.round(100 - w.score + (Math.random() * 4 - 2)),
+}))
 
-/** Card wrapper — surface bg, border, rounded */
-function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl p-6 bg-surface border border-border ${className}`}>
-      {children}
-    </div>
-  )
-}
+const topFormats = [
+  { label: 'Instagram Post', count: 412, pct: 85, color: DOT_GREEN },
+  { label: 'LinkedIn', count: 268, pct: 55, color: DOT_PURPLE },
+  { label: 'X Post', count: 196, pct: 40, color: DOT_GOLD },
+  { label: 'Instagram Story', count: 155, pct: 32, color: DOT_PEACH },
+  { label: 'Facebook', count: 108, pct: 22, color: DOT_BLUE },
+  { label: 'Other', count: 108, pct: 18, color: '#e5e5e5' },
+]
 
-/** Horizontal bar used in ranked lists */
-function ProgressBar({
-  value,
-  max,
-  color = 'bg-ink',
-  trackColor = 'bg-border',
-}: {
-  value: number
-  max: number
-  color?: string
-  trackColor?: string
-}) {
-  const pct = max > 0 ? (value / max) * 100 : 0
-  return (
-    <div className={`h-[3px] rounded-sm ${trackColor}`}>
-      <div
-        className={`h-[3px] rounded-sm ${color} transition-[width] duration-150 ease-out`}
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  )
-}
+const commonViolations = [
+  { label: 'Color mismatch', count: 34 },
+  { label: 'Voice deviation', count: 28 },
+  { label: 'Typography', count: 19 },
+  { label: 'Logo misuse', count: 11 },
+]
 
-/** Recommendation card */
-function RecommendationCard({
-  icon,
-  title,
-  description,
-  linkLabel,
-  linkTo,
-}: {
-  icon: React.ReactNode
-  title: string
-  description: string
-  linkLabel: string
-  linkTo: string
-}) {
-  return (
-    <Card className="p-5">
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-subtle">
-          {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold mb-1">{title}</h3>
-          <p className="text-sm text-muted mb-3">{description}</p>
-          <Link
-            to={linkTo}
-            className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:opacity-80 transition-opacity"
-          >
-            {linkLabel} <ArrowRight size={16} strokeWidth={1.5} />
-          </Link>
-        </div>
-      </div>
-    </Card>
-  )
+const userActivity = [
+  { name: 'Elena Rodriguez', initials: 'ER', dept: 'Marketing', generated: 142, exported: 118, alignment: 96, flagged: 1 },
+  { name: 'David Chen', initials: 'DC', dept: 'Design', generated: 128, exported: 104, alignment: 93, flagged: 2 },
+  { name: 'Sarah Lawrence', initials: 'SL', dept: 'Marketing', generated: 97, exported: 82, alignment: 91, flagged: 3 },
+  { name: 'James Kim', initials: 'JK', dept: 'Sales', generated: 89, exported: 71, alignment: 87, flagged: 4 },
+  { name: 'Priya Mehta', initials: 'PM', dept: 'HR', generated: 76, exported: 58, alignment: 84, flagged: 5 },
+  { name: 'Alex Torres', initials: 'AT', dept: 'Product', generated: 64, exported: 49, alignment: 79, flagged: 7 },
+  { name: 'Mike Reynolds', initials: 'MR', dept: 'Finance', generated: 41, exported: 32, alignment: 74, flagged: 9 },
+  { name: 'Aisha Patel', initials: 'AP', dept: 'Engineering', generated: 38, exported: 28, alignment: 82, flagged: 3 },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+function alignmentColor(score: number): { bg: string; text: string } {
+  if (score >= 90) return { bg: 'rgba(74,124,89,0.12)', text: GREEN }
+  if (score >= 80) return { bg: 'rgba(217,119,6,0.12)', text: AMBER }
+  return { bg: 'rgba(233,69,96,0.12)', text: RED }
 }
 
 /* ------------------------------------------------------------------ */
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 export default function Pulse() {
-  const { weeklyTrend, teamActivity, topUsers, formatBreakdown, violationTypes } = analyticsData
+  const [period, setPeriod] = useState<'Week' | 'Month' | 'All Time'>('Month')
 
-  const maxTeam = Math.max(...teamActivity.map((t) => t.count))
-  const maxFormat = Math.max(...formatBreakdown.map((f) => f.count))
-  const maxViolation = Math.max(...violationTypes.map((v) => v.count))
+  const periods: ('Week' | 'Month' | 'All Time')[] = ['Week', 'Month', 'All Time']
 
   return (
-    <div className="font-sans text-ink">
+    <div style={{ color: INK }}>
       {/* ============================================================ */}
       {/* PAGE HEADER                                                   */}
       {/* ============================================================ */}
-      <div className="mb-12">
-        <h1 className="text-[28px] font-semibold tracking-tight">Pulse</h1>
-        <p className="text-sm text-muted mt-1">Brand performance intelligence</p>
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 style={{ fontSize: 28, fontWeight: 500, color: INK }}>Analytics</h1>
+          <p style={{ fontSize: 15, fontWeight: 300, color: MUTED_48, marginTop: 4 }}>
+            Track generation volume, brand compliance, and team activity
+          </p>
+        </div>
+        <div className="flex items-center" style={{ borderRadius: 10, border: '1px solid rgba(35,31,35,0.08)', overflow: 'hidden' }}>
+          {periods.map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className="px-4 py-2"
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                backgroundColor: period === p ? INK : '#ffffff',
+                color: period === p ? '#ffffff' : MUTED_64,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ============================================================ */}
-      {/* SECTION 1 -- Team Activity                                    */}
+      {/* METRICS ROW                                                   */}
       {/* ============================================================ */}
-      <section>
-        <Caption>TEAM ACTIVITY</Caption>
-
-        {/* Weekly trend chart card */}
-        <Card>
-          <div className="mb-2">
-            <span className="text-5xl font-semibold tracking-tighter leading-none">
-              {analyticsData.totalGenerated.month}
-            </span>
-            <p className="text-sm text-muted mt-1">generated this month</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {/* Total Generated */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between mb-3">
+            <span style={MONO_LABEL}>Total Generated</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: DOT_GREEN, display: 'inline-block' }} />
           </div>
-
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={weeklyTrend}>
-              <CartesianGrid vertical={false} stroke="rgba(15,15,15,0.04)" />
-              <XAxis
-                dataKey="week"
-                tick={{ fontSize: 11, fill: 'rgba(15,15,15,0.4)' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="var(--color-ink)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* 3-column breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          {/* Top Teams */}
-          <Card>
-            <Caption>TOP TEAMS</Caption>
-            <div className="flex flex-col gap-3">
-              {teamActivity.slice(0, 5).map((t, i) => (
-                <div key={t.team}>
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[13px] text-muted w-4 inline-block">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm font-medium">{t.team}</span>
-                    </div>
-                    <span className="font-mono text-[13px] text-muted">{t.count}</span>
-                  </div>
-                  <div className="ml-6">
-                    <ProgressBar value={t.count} max={maxTeam} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Top Users */}
-          <Card>
-            <Caption>TOP USERS</Caption>
-            <div className="flex flex-col gap-3">
-              {topUsers.map((u, i) => (
-                <div key={u.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[13px] text-muted w-4 inline-block">
-                      {i + 1}
-                    </span>
-                    <div>
-                      <span className="text-sm font-medium">{u.name}</span>
-                      <span className="text-[13px] text-muted ml-1.5">{u.team}</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[13px] text-muted">{u.count}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Formats */}
-          <Card>
-            <Caption>FORMATS</Caption>
-            <div className="flex flex-col gap-3">
-              {formatBreakdown.map((f) => (
-                <div key={f.format}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm">{f.format}</span>
-                    <span className="font-mono text-[13px] text-muted">{f.count}</span>
-                  </div>
-                  <ProgressBar value={f.count} max={maxFormat} />
-                </div>
-              ))}
-            </div>
-          </Card>
+          <div style={{ fontSize: 32, fontWeight: 600, color: INK, lineHeight: 1 }}>1,247</div>
+          <div className="mt-2" style={{ fontSize: 13, color: GREEN, fontWeight: 500 }}>
+            ↑ 18% vs last month
+          </div>
         </div>
-      </section>
+
+        {/* Active Users */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between mb-3">
+            <span style={MONO_LABEL}>Active Users</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: DOT_GOLD, display: 'inline-block' }} />
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 600, color: INK, lineHeight: 1 }}>34</div>
+          <div className="mt-2" style={{ fontSize: 13, color: GREEN, fontWeight: 500 }}>
+            ↑ 6 new this month
+          </div>
+        </div>
+
+        {/* Avg per User */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between mb-3">
+            <span style={MONO_LABEL}>Avg per User</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: DOT_PURPLE, display: 'inline-block' }} />
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 600, color: INK, lineHeight: 1 }}>36.7</div>
+          <div className="mt-2" style={{ fontSize: 13, color: GREEN, fontWeight: 500 }}>
+            ↑ 12% vs last month
+          </div>
+        </div>
+
+        {/* Exports */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between mb-3">
+            <span style={MONO_LABEL}>Exports</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: DOT_BLUE, display: 'inline-block' }} />
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 600, color: INK, lineHeight: 1 }}>892</div>
+          <div className="mt-2" style={{ fontSize: 13, color: GREEN, fontWeight: 500 }}>
+            ↑ 24% vs last month
+          </div>
+        </div>
+      </div>
 
       {/* ============================================================ */}
-      {/* SECTION 2 -- Brand Compliance                                 */}
+      {/* CHART ROW 1: Generation Volume + Top Formats                  */}
       {/* ============================================================ */}
-      <section className="mt-12">
-        <Caption>BRAND COMPLIANCE</Caption>
-
-        {/* Score + compliance ratio */}
-        <Card className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
-          {/* Left: avg alignment score */}
-          <div className="md:col-span-3">
-            <p className="caption mb-2">AVG ALIGNMENT SCORE</p>
-            <div className="flex items-center gap-3">
-              <span className="text-5xl font-semibold tracking-tighter leading-none">
-                {analyticsData.avgAlignmentScore}
-              </span>
-              <div className="flex items-center gap-1 text-signal-green">
-                <TrendingUp size={16} strokeWidth={1.5} />
-                <span className="text-sm font-medium">+2 pts</span>
-              </div>
-            </div>
+      <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '2fr 1fr' }}>
+        {/* Generation Volume */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between mb-1">
+            <span style={{ fontSize: 16, fontWeight: 500, color: INK }}>Generation Volume</span>
           </div>
-
-          {/* Right: compliance ratio bar */}
-          <div className="md:col-span-2">
-            <div className="h-2 rounded-full overflow-hidden flex bg-border">
-              <div
-                className="bg-signal-green rounded-l-full"
-                style={{ width: `${analyticsData.passedPercent}%` }}
-              />
-              <div
-                className="bg-signal-red rounded-r-full"
-                style={{ width: `${analyticsData.flaggedPercent}%` }}
-              />
-            </div>
-            <div className="flex justify-between mt-2">
-              <span className="text-[13px] font-medium text-signal-green">
-                {analyticsData.passedPercent}% passed
-              </span>
-              <span className="text-[13px] font-medium text-signal-red">
-                {analyticsData.flaggedPercent}% flagged
-              </span>
-            </div>
+          <div className="mb-4">
+            <span style={MONO_LABEL}>Daily average: 42</span>
           </div>
-        </Card>
-
-        {/* Compliance trend chart */}
-        <Card className="mt-6">
-          <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={weeklyTrend}>
-              <CartesianGrid vertical={false} stroke="rgba(15,15,15,0.04)" />
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={volumeData}>
+              <defs>
+                <linearGradient id="greenGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={GREEN} stopOpacity={0.15} />
+                  <stop offset="100%" stopColor={GREEN} stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} stroke="rgba(35,31,35,0.06)" />
               <XAxis
-                dataKey="week"
-                tick={{ fontSize: 11, fill: 'rgba(15,15,15,0.4)' }}
+                dataKey="name"
+                tick={{ fontFamily: 'Fragment Mono, monospace', fontSize: 11, fill: MUTED_48, textTransform: 'uppercase' } as React.CSSProperties}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip contentStyle={tooltipStyle} />
-              <Line
+              <Area
                 type="monotone"
-                dataKey="score"
-                stroke="var(--color-signal-green)"
-                strokeWidth={2}
+                dataKey="value"
+                stroke={GREEN}
+                strokeWidth={2.5}
+                fill="url(#greenGradient)"
                 dot={false}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
-        </Card>
+        </div>
 
-        {/* Top violations */}
-        <Card className="mt-6">
-          <Caption>TOP VIOLATIONS</Caption>
+        {/* Top Formats */}
+        <div style={CARD_STYLE}>
+          <div className="mb-5">
+            <span style={{ fontSize: 16, fontWeight: 500, color: INK }}>Top Formats</span>
+          </div>
           <div className="flex flex-col gap-4">
-            {violationTypes.map((v) => (
-              <div key={v.type}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm">{v.type}</span>
-                  <span className="font-mono text-[13px] text-muted">{v.count}</span>
+            {topFormats.map((f) => (
+              <div key={f.label}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span style={{ fontSize: 13, fontWeight: 400, color: INK }}>{f.label}</span>
+                  <span style={{ ...MONO_LABEL, color: MUTED_48 }}>{f.count}</span>
                 </div>
-                <ProgressBar
-                  value={v.count}
-                  max={maxViolation}
-                  color="bg-signal-red"
-                  trackColor="bg-signal-red/20"
-                />
+                <div style={{ height: 6, borderRadius: 3, backgroundColor: 'rgba(35,31,35,0.04)' }}>
+                  <div
+                    style={{
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: f.color,
+                      width: `${f.pct}%`,
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
-        </Card>
-      </section>
-
-      {/* ============================================================ */}
-      {/* SECTION 3 -- Recommendations                                  */}
-      {/* ============================================================ */}
-      <section className="mt-12">
-        <Caption>RECOMMENDATIONS</Caption>
-
-        <div className="flex flex-col gap-4">
-          <RecommendationCard
-            icon={<FileImage size={18} strokeWidth={1.5} className="text-muted" />}
-            title="Strengthen your color system"
-            description="Color mismatch is your #1 violation type with 34 occurrences. Review and expand your color palette to cover common use cases."
-            linkLabel="Review color system"
-            linkTo="/brand-system"
-          />
-
-          <RecommendationCard
-            icon={<Shield size={18} strokeWidth={1.5} className="text-muted" />}
-            title="Tighten your brand voice guidelines"
-            description="Voice deviation accounts for 28 flags this month. Add more examples of preferred and avoided language to help your team stay on-brand."
-            linkLabel="Review voice guidelines"
-            linkTo="/brand-system"
-          />
-
-          <RecommendationCard
-            icon={<Users size={18} strokeWidth={1.5} className="text-muted" />}
-            title="Standardize typography across teams"
-            description="Typography mismatch has 19 occurrences, often from teams using system fonts instead of brand fonts. Distribute font files and update your onboarding guide."
-            linkLabel="Review typography system"
-            linkTo="/brand-system"
-          />
         </div>
-      </section>
+      </div>
+
+      {/* ============================================================ */}
+      {/* CHART ROW 2: Brand Compliance + Quality Trends                */}
+      {/* ============================================================ */}
+      <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '2fr 1fr' }}>
+        {/* Brand Compliance */}
+        <div style={CARD_STYLE}>
+          <div className="mb-5">
+            <span style={{ fontSize: 16, fontWeight: 500, color: INK }}>Brand Compliance</span>
+          </div>
+
+          <div className="flex items-start gap-8">
+            {/* Donut chart */}
+            <div className="flex flex-col items-center" style={{ minWidth: 160 }}>
+              <div
+                style={{
+                  width: 140,
+                  height: 140,
+                  borderRadius: '50%',
+                  background: `conic-gradient(${GREEN} 0deg 259.2deg, ${AMBER} 259.2deg 309.6deg, ${RED} 309.6deg 360deg)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    width: 96,
+                    height: 96,
+                    borderRadius: '50%',
+                    backgroundColor: '#ffffff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: 28, fontWeight: 600, color: INK, lineHeight: 1 }}>91%</span>
+                  <span style={{ fontSize: 11, color: MUTED_48, marginTop: 2 }}>Average</span>
+                </div>
+              </div>
+
+              {/* Legend */}
+              <div className="flex gap-4 mt-4">
+                <div className="flex items-center gap-1.5">
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: GREEN, display: 'inline-block' }} />
+                  <span style={{ fontSize: 11, color: MUTED_64 }}>Passed 72%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: AMBER, display: 'inline-block' }} />
+                  <span style={{ fontSize: 11, color: MUTED_64 }}>Warning 14%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: RED, display: 'inline-block' }} />
+                  <span style={{ fontSize: 11, color: MUTED_64 }}>Failed 14%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side stats */}
+            <div className="flex-1">
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div style={{ ...CARD_STYLE, padding: 16 }}>
+                  <span style={MONO_LABEL}>vs Last Month</span>
+                  <div className="mt-1" style={{ fontSize: 20, fontWeight: 600, color: GREEN }}>+3.2%</div>
+                </div>
+                <div style={{ ...CARD_STYLE, padding: 16 }}>
+                  <span style={MONO_LABEL}>Flags This Month</span>
+                  <div className="mt-1" style={{ fontSize: 20, fontWeight: 600, color: AMBER }}>14</div>
+                </div>
+              </div>
+
+              {/* Insight callout */}
+              <div
+                className="flex items-start gap-3 p-4"
+                style={{
+                  backgroundColor: 'rgba(74,124,89,0.06)',
+                  borderRadius: 12,
+                  border: '1px solid rgba(74,124,89,0.12)',
+                }}
+              >
+                <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
+                <div>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: INK }}>Brand compliance improved 3.2% this month. </span>
+                  <span style={{ fontSize: 13, color: MUTED_64 }}>
+                    Color consistency is the biggest area for improvement with 34 flags.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quality Trends */}
+        <div style={CARD_STYLE}>
+          <div className="mb-5">
+            <span style={{ fontSize: 16, fontWeight: 500, color: INK }}>Quality Trends</span>
+          </div>
+
+          {/* Legend */}
+          <div className="flex gap-4 mb-4">
+            <div className="flex items-center gap-1.5">
+              <span style={{ width: 12, height: 2, backgroundColor: DOT_PURPLE, display: 'inline-block', borderRadius: 1 }} />
+              <span style={{ fontSize: 11, color: MUTED_64 }}>Alignment</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span style={{ width: 12, height: 2, backgroundColor: RED, display: 'inline-block', borderRadius: 1, borderTop: `1px dashed ${RED}` }} />
+              <span style={{ fontSize: 11, color: MUTED_64 }}>Flags</span>
+            </div>
+          </div>
+
+          <ResponsiveContainer width="100%" height={140}>
+            <LineChart data={qualityData}>
+              <CartesianGrid vertical={false} stroke="rgba(35,31,35,0.06)" />
+              <XAxis
+                dataKey="name"
+                tick={{ fontFamily: 'Fragment Mono, monospace', fontSize: 10, fill: MUTED_48 } as React.CSSProperties}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Line type="monotone" dataKey="alignment" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="flags" stroke={RED} strokeWidth={2} strokeDasharray="4 3" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+
+          {/* Most Common Violations */}
+          <div className="mt-5">
+            <span style={{ ...MONO_LABEL, display: 'block', marginBottom: 10 }}>Most Common Violations</span>
+            <div className="flex flex-col gap-3">
+              {commonViolations.map((v) => (
+                <div key={v.label}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span style={{ fontSize: 12, color: MUTED_64 }}>{v.label}</span>
+                    <span style={{ ...MONO_LABEL, color: MUTED_32 }}>{v.count}</span>
+                  </div>
+                  <div style={{ height: 4, borderRadius: 2, backgroundColor: 'rgba(35,31,35,0.04)' }}>
+                    <div
+                      style={{
+                        height: 4,
+                        borderRadius: 2,
+                        backgroundColor: RED,
+                        opacity: 0.6,
+                        width: `${(v.count / 34) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* USER ACTIVITY TABLE                                           */}
+      {/* ============================================================ */}
+      <div style={CARD_STYLE}>
+        <div className="mb-5">
+          <span style={{ fontSize: 16, fontWeight: 500, color: INK }}>User Activity</span>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(35,31,35,0.08)' }}>
+                {['User', 'Department', 'Generated', 'Exported', 'Avg Alignment', 'Flagged'].map((h) => (
+                  <th
+                    key={h}
+                    className="text-left pb-3 pr-4"
+                    style={{ ...MONO_LABEL, fontWeight: 500 }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {userActivity.map((u) => {
+                const ac = alignmentColor(u.alignment)
+                return (
+                  <tr
+                    key={u.name}
+                    style={{ borderBottom: '1px solid rgba(35,31,35,0.04)' }}
+                  >
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex items-center justify-center flex-shrink-0"
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(35,31,35,0.06)',
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: MUTED_64,
+                          }}
+                        >
+                          {u.initials}
+                        </div>
+                        <span style={{ fontWeight: 500, color: INK }}>{u.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 pr-4" style={{ color: MUTED_64 }}>{u.dept}</td>
+                    <td className="py-3 pr-4" style={{ fontFamily: 'Fragment Mono, monospace', color: INK }}>{u.generated}</td>
+                    <td className="py-3 pr-4" style={{ fontFamily: 'Fragment Mono, monospace', color: INK }}>{u.exported}</td>
+                    <td className="py-3 pr-4">
+                      <span
+                        className="inline-block px-2.5 py-0.5"
+                        style={{
+                          borderRadius: 20,
+                          backgroundColor: ac.bg,
+                          color: ac.text,
+                          fontFamily: 'Fragment Mono, monospace',
+                          fontSize: 12,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {u.alignment}%
+                      </span>
+                    </td>
+                    <td className="py-3" style={{ fontFamily: 'Fragment Mono, monospace', color: u.flagged >= 5 ? RED : MUTED_48 }}>
+                      {u.flagged}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

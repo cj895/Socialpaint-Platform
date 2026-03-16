@@ -1,18 +1,87 @@
 import { useState } from 'react'
 import {
-  Edit3, Copy, Check, X, Plus, Upload, Figma,
-  AlertCircle,
+  Check, Copy, Plus, Upload,
 } from 'lucide-react'
 import {
   brandProfile, logoVariants, brandColors, brandFonts, brandVoice,
   imageryStyle, figmaAnalyses, brandScore,
 } from '../data/mockData'
 
-const toneIntensities: Record<string, number> = {
-  Confident: 9,
-  Approachable: 8,
-  Concise: 7,
-  'Science-Forward': 8,
+/* ── design tokens (inline style helpers) ── */
+const ink = '#231f23'
+const muted48 = 'rgba(35,31,35,0.48)'
+const muted64 = 'rgba(35,31,35,0.64)'
+const border = '1px solid rgba(35,31,35,0.08)'
+const green = '#4a7c59'
+const red = '#e94560'
+const purple = '#cebffa'
+
+const cardStyle: React.CSSProperties = {
+  backgroundColor: '#ffffff',
+  border,
+  borderRadius: 16,
+  padding: 28,
+}
+
+const monoLabel: React.CSSProperties = {
+  fontFamily: 'Fragment Mono, monospace',
+  fontSize: 11,
+  fontWeight: 400,
+  textTransform: 'uppercase' as const,
+  letterSpacing: 0.75,
+  color: muted48,
+}
+
+const editBtnStyle: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 400,
+  color: muted48,
+  background: 'rgba(35,31,35,0.04)',
+  border,
+  padding: '6px 14px',
+  borderRadius: 8,
+  cursor: 'pointer',
+}
+
+const sectionIconStyle: React.CSSProperties = {
+  width: 36,
+  height: 36,
+  borderRadius: 10,
+  backgroundColor: purple,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 16,
+}
+
+/* ── helpers ── */
+function SectionHeader({
+  icon,
+  title,
+  subtitle,
+  onEdit,
+  editLabel = 'Edit',
+}: {
+  icon: string
+  title: string
+  subtitle: string
+  onEdit?: () => void
+  editLabel?: string
+}) {
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <div style={sectionIconStyle}>{icon}</div>
+      <div className="flex-1">
+        <h2 style={{ fontSize: 18, fontWeight: 500, color: ink, margin: 0 }}>{title}</h2>
+        <p style={{ fontSize: 13, fontWeight: 300, color: muted64, margin: 0 }}>{subtitle}</p>
+      </div>
+      {onEdit && (
+        <button style={editBtnStyle} onClick={onEdit}>
+          {editLabel}
+        </button>
+      )}
+    </div>
+  )
 }
 
 export default function BrandSystem() {
@@ -34,87 +103,137 @@ export default function BrandSystem() {
     setTimeout(() => setCopiedId(null), 1500)
   }
 
-  return (
-    <div className="max-w-[960px] mx-auto px-6">
-      {/* ── 1. Brand Identity Header ── */}
-      <section className="py-16">
-        <h1
-          style={{ fontSize: 56, fontWeight: 600, letterSpacing: -2, lineHeight: 1.0 }}
-          className="text-ink"
-        >
-          {profile.name}
-        </h1>
-        <p
-          style={{ fontSize: 18, fontWeight: 400 }}
-          className="text-muted mt-3"
-        >
-          {profile.tagline}
-        </p>
+  const scorePercent = 87
+  const scoreAngle = (scorePercent / 100) * 360
 
-        {/* Color band */}
-        <div className="mt-8 flex rounded-xl overflow-hidden" style={{ height: 48 }}>
-          {brandColors.map((c) => (
-            <div key={c.id} className="flex-1" style={{ backgroundColor: c.hex }} />
-          ))}
+  return (
+    <div className="max-w-[960px] mx-auto px-6 pb-16">
+
+      {/* ════════════════════════════════════════════
+          1. Page Header
+      ════════════════════════════════════════════ */}
+      <div className="flex items-start justify-between pt-10 pb-10">
+        {/* Left */}
+        <div>
+          <h1 style={{ fontSize: 28, fontWeight: 500, color: ink, margin: 0 }}>
+            Brand Intelligence
+          </h1>
+          <p style={{ fontSize: 15, fontWeight: 300, color: muted48, marginTop: 4 }}>
+            Your unified brand system — logos, colors, voice &amp; Figma analysis
+          </p>
         </div>
 
-        {/* Completion bar */}
-        <div className="mt-4 flex items-center gap-3">
-          <span className="caption">Brand System &middot; {brandScore.overall}% complete</span>
-          <div className="flex-1 bg-border rounded-full" style={{ height: 4 }}>
+        {/* Right – Brand Score card */}
+        <div
+          style={{
+            ...cardStyle,
+            padding: '20px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            flexShrink: 0,
+          }}
+        >
+          {/* Score ring */}
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              background: `conic-gradient(${purple} ${scoreAngle}deg, rgba(35,31,35,0.06) ${scoreAngle}deg)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
             <div
-              className="bg-ink rounded-full"
-              style={{ height: 4, width: `${brandScore.overall}%` }}
-            />
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: '50%',
+                backgroundColor: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <span style={{ fontSize: 20, fontWeight: 500, color: ink }}>{scorePercent}</span>
+            </div>
+          </div>
+
+          {/* Score details */}
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 500, color: ink, margin: 0 }}>Brand Score</p>
+            <div className="flex flex-wrap gap-1 mt-2" style={{ maxWidth: 220 }}>
+              {brandScore.items.map((item) => (
+                <span
+                  key={item.label}
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    padding: '2px 8px',
+                    borderRadius: 20,
+                    backgroundColor: item.done ? 'rgba(74,124,89,0.12)' : 'rgba(35,31,35,0.06)',
+                    color: item.done ? green : muted48,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {item.done ? '✓' : '○'} {item.label}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── 2. Brand Profile ── */}
-      <section className="py-16 border-t border-border">
-        <div className="flex items-center justify-between mb-6">
-          <span className="caption">PROFILE</span>
-          {!editing ? (
-            <button
-              onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 text-muted hover:text-ink transition-colors"
-              style={{ transitionDuration: '120ms' }}
-            >
-              <Edit3 size={16} strokeWidth={1.5} />
-              <span style={{ fontSize: 13, fontWeight: 500 }}>Edit</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => { setEditing(false); setProfile({ ...brandProfile }) }}
-              className="flex items-center gap-1.5 text-muted hover:text-ink transition-colors"
-              style={{ transitionDuration: '120ms' }}
-            >
-              <X size={16} strokeWidth={1.5} />
-              <span style={{ fontSize: 13, fontWeight: 500 }}>Cancel</span>
-            </button>
-          )}
-        </div>
+      {/* ════════════════════════════════════════════
+          2. Brand Profile
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="🏢"
+          title="Brand Profile"
+          subtitle="Core identity information"
+          onEdit={() => {
+            if (editing) {
+              setEditing(false)
+              setProfile({ ...brandProfile })
+            } else {
+              setEditing(true)
+            }
+          }}
+          editLabel={editing ? 'Cancel' : 'Edit'}
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
-          {(['name', 'tagline', 'industry', 'targetAudience'] as const).map((field) => {
+          {(['name', 'industry', 'tagline', 'targetAudience'] as const).map((field) => {
             const labels: Record<string, string> = {
-              name: 'Name',
-              tagline: 'Tagline',
-              industry: 'Industry',
-              targetAudience: 'Target Audience',
+              name: 'NAME',
+              industry: 'INDUSTRY',
+              tagline: 'TAGLINE',
+              targetAudience: 'TARGET AUDIENCE',
             }
             return (
               <div key={field}>
-                <span className="caption">{labels[field]}</span>
+                <span style={monoLabel}>{labels[field]}</span>
                 {editing ? (
                   <input
-                    className="mt-1 w-full bg-white border border-border rounded-lg px-3 py-2 text-ink outline-none focus:border-ink"
-                    style={{ fontSize: 14, fontWeight: 400, transitionDuration: '120ms' }}
+                    className="mt-1 w-full outline-none"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 300,
+                      color: ink,
+                      backgroundColor: '#ffffff',
+                      border,
+                      borderRadius: 8,
+                      padding: '8px 12px',
+                    }}
                     value={profile[field]}
                     onChange={(e) => handleProfileChange(field, e.target.value)}
                   />
                 ) : (
-                  <p style={{ fontSize: 14, fontWeight: 400 }} className="mt-1 text-ink">
+                  <p style={{ fontSize: 15, fontWeight: 300, color: ink, marginTop: 4, marginBottom: 0 }}>
                     {profile[field]}
                   </p>
                 )}
@@ -125,17 +244,25 @@ export default function BrandSystem() {
 
         {/* Mission — full width */}
         <div className="mt-5">
-          <span className="caption">Mission</span>
+          <span style={monoLabel}>MISSION</span>
           {editing ? (
             <textarea
-              className="mt-1 w-full bg-white border border-border rounded-lg px-3 py-2 text-ink outline-none focus:border-ink resize-none"
-              style={{ fontSize: 14, fontWeight: 400, transitionDuration: '120ms' }}
+              className="mt-1 w-full outline-none resize-none"
               rows={3}
+              style={{
+                fontSize: 15,
+                fontWeight: 300,
+                color: ink,
+                backgroundColor: '#ffffff',
+                border,
+                borderRadius: 8,
+                padding: '8px 12px',
+              }}
               value={profile.mission}
               onChange={(e) => handleProfileChange('mission', e.target.value)}
             />
           ) : (
-            <p style={{ fontSize: 14, fontWeight: 400 }} className="mt-1 text-ink">
+            <p style={{ fontSize: 15, fontWeight: 300, color: ink, marginTop: 4, marginBottom: 0 }}>
               {profile.mission}
             </p>
           )}
@@ -144,364 +271,490 @@ export default function BrandSystem() {
         {editing && (
           <button
             onClick={handleSave}
-            className="mt-6 bg-ink text-white h-10 px-4 rounded-lg hover:opacity-90 transition-opacity"
-            style={{ fontSize: 14, fontWeight: 500, transitionDuration: '120ms' }}
+            style={{
+              marginTop: 20,
+              fontSize: 14,
+              fontWeight: 500,
+              color: '#ffffff',
+              backgroundColor: ink,
+              border: 'none',
+              borderRadius: 8,
+              padding: '8px 20px',
+              cursor: 'pointer',
+            }}
           >
             Save
           </button>
         )}
-      </section>
+      </div>
 
-      {/* ── 3. Logo Library ── */}
-      <section className="py-16 border-t border-border">
-        <span className="caption">LOGOS</span>
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {logoVariants.map((logo) => (
-            <div key={logo.id} className="bg-surface rounded-xl p-6">
+      {/* ════════════════════════════════════════════
+          3. Logo Library
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="🎨"
+          title="Logo Library"
+          subtitle="All approved logo variants"
+          onEdit={() => {}}
+        />
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {logoVariants.slice(0, 3).map((logo) => (
+            <div
+              key={logo.id}
+              style={{ backgroundColor: 'rgba(35,31,35,0.03)', borderRadius: 12 }}
+              className="flex flex-col items-center p-5"
+            >
+              {/* Logo placeholder */}
               <div
-                className="rounded-lg"
                 style={{
-                  height: 140,
-                  background: `linear-gradient(135deg, ${brandColors[0].hex}, ${brandColors[2].hex}, ${brandColors[5].hex})`,
+                  width: 80,
+                  height: 80,
+                  borderRadius: 12,
+                  backgroundColor: 'rgba(35,31,35,0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  color: muted48,
                 }}
-              />
-              <div className="mt-4 flex items-center gap-2">
-                <span style={{ fontSize: 18, fontWeight: 600 }} className="text-ink">
-                  {logo.label}
-                </span>
-                {logo.label === 'Primary' && (
-                  <span
-                    className="caption bg-ink text-white px-2 py-0.5 rounded"
-                    style={{ fontSize: 10, letterSpacing: 0.5 }}
-                  >
-                    PRIMARY
-                  </span>
-                )}
+              >
+                ◇
               </div>
-              <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted mt-1">
-                {logo.context}
+              <p style={{ fontSize: 13, fontWeight: 500, color: ink, marginTop: 12, marginBottom: 2, textAlign: 'center' }}>
+                {logo.label}
               </p>
+              <span style={monoLabel}>{logo.context.split(' ')[0]}</span>
             </div>
           ))}
 
-          {/* Upload button card */}
-          <button className="bg-surface rounded-xl p-6 border border-dashed border-border hover:border-ink/20 flex flex-col items-center justify-center gap-2 text-muted hover:text-ink transition-colors" style={{ transitionDuration: '120ms', minHeight: 200 }}>
-            <Upload size={18} strokeWidth={1.5} />
-            <span style={{ fontSize: 14, fontWeight: 500 }}>Upload logo</span>
-          </button>
+          {/* Upload zone */}
+          <div
+            style={{
+              border: '2px dashed rgba(35,31,35,0.12)',
+              borderRadius: 12,
+              cursor: 'pointer',
+            }}
+            className="flex flex-col items-center justify-center p-5 gap-2"
+          >
+            <Upload size={20} style={{ color: muted48 }} />
+            <span style={{ fontSize: 13, fontWeight: 400, color: muted48 }}>Upload logo</span>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── 4. Color System ── */}
-      <section className="py-16 border-t border-border">
-        <span className="caption">COLOR SYSTEM</span>
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* ════════════════════════════════════════════
+          4. Color Palette
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="🎨"
+          title="Color Palette"
+          subtitle="Brand color system"
+          onEdit={() => {}}
+        />
+
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
           {brandColors.map((color) => (
-            <div key={color.id} className="bg-surface rounded-xl p-4">
+            <div key={color.id} className="flex flex-col items-center">
+              {/* Swatch */}
               <div
-                className="rounded-lg w-full"
-                style={{ height: 80, backgroundColor: color.hex }}
+                style={{
+                  width: '100%',
+                  height: 56,
+                  borderRadius: 12,
+                  backgroundColor: color.hex,
+                  cursor: 'pointer',
+                }}
+                onClick={() => copyHex(color.id, color.hex)}
               />
-              <p style={{ fontSize: 14, fontWeight: 500 }} className="text-ink mt-3">
+              <p style={{ fontSize: 12, fontWeight: 500, color: ink, marginTop: 8, marginBottom: 2 }}>
                 {color.name}
               </p>
-              <div className="flex items-center gap-1 mt-1">
-                <span className="font-mono text-muted" style={{ fontSize: 13 }}>
-                  {color.hex}
-                </span>
-                <button
-                  onClick={() => copyHex(color.id, color.hex)}
-                  className="text-muted hover:text-ink transition-colors p-0.5"
-                  style={{ transitionDuration: '120ms' }}
-                >
-                  {copiedId === color.id ? (
-                    <Check size={12} strokeWidth={1.5} />
-                  ) : (
-                    <Copy size={12} strokeWidth={1.5} />
-                  )}
-                </button>
-              </div>
-              {copiedId === color.id && (
-                <span className="text-signal-green" style={{ fontSize: 11, fontWeight: 500 }}>
-                  Copied
-                </span>
-              )}
-              <p className="caption mt-1">{color.usage}</p>
+              <span
+                style={{
+                  fontFamily: 'Fragment Mono, monospace',
+                  fontSize: 10,
+                  color: muted48,
+                }}
+              >
+                {copiedId === color.id ? (
+                  <span className="flex items-center gap-1" style={{ color: green }}>
+                    <Check size={10} /> Copied
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    {color.hex}
+                    <Copy size={10} style={{ color: muted48, cursor: 'pointer' }} onClick={() => copyHex(color.id, color.hex)} />
+                  </span>
+                )}
+              </span>
+              <span style={{ ...monoLabel, fontSize: 9, marginTop: 2 }}>{color.usage}</span>
             </div>
           ))}
-        </div>
-        <button
-          className="mt-4 flex items-center gap-1.5 text-muted hover:text-ink transition-colors"
-          style={{ fontSize: 13, fontWeight: 500, transitionDuration: '120ms' }}
-        >
-          <Plus size={16} strokeWidth={1.5} />
-          Add color
-        </button>
-      </section>
 
-      {/* ── 5. Typography ── */}
-      <section className="py-16 border-t border-border">
-        <span className="caption">TYPOGRAPHY</span>
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Add color */}
+          <div
+            className="flex flex-col items-center justify-center"
+            style={{ cursor: 'pointer' }}
+          >
+            <div
+              style={{
+                width: '100%',
+                height: 56,
+                borderRadius: 12,
+                border: '2px dashed rgba(35,31,35,0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Plus size={18} style={{ color: muted48 }} />
+            </div>
+            <p style={{ fontSize: 12, fontWeight: 500, color: muted48, marginTop: 8 }}>
+              Add color
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          5. Typography
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="Aa"
+          title="Typography"
+          subtitle="Approved typefaces and usage"
+          onEdit={() => {}}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {brandFonts.map((font) => (
-            <div key={font.id} className="bg-surface rounded-xl p-6">
-              <p style={{ fontSize: 32, fontWeight: 600 }} className="text-ink">
-                Aa {font.name}
+            <div
+              key={font.id}
+              style={{ backgroundColor: 'rgba(35,31,35,0.03)', borderRadius: 12 }}
+              className="p-5"
+            >
+              <span
+                style={{
+                  fontFamily: 'Fragment Mono, monospace',
+                  fontSize: 10,
+                  fontWeight: 400,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: 0.75,
+                  color: muted48,
+                }}
+              >
+                {font.role}
+              </span>
+              <p style={{ fontSize: 24, fontWeight: 400, color: ink, margin: '8px 0' }}>
+                Aa Bb Cc 123
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="caption bg-border px-2 py-0.5 rounded">{font.role}</span>
-              </div>
-              <div className="mt-3 space-y-1">
-                <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted">
-                  Weight: {font.weight}
-                </p>
-                <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted">
-                  Size: {font.sizeGuideline}
-                </p>
-              </div>
+              <p style={{ fontSize: 12, fontWeight: 300, color: muted64, margin: 0 }}>
+                {font.name} · {font.weight} · {font.sizeGuideline}
+              </p>
             </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* ── 6. Voice & Tone ── */}
-      <section className="py-16 border-t border-border">
-        <span className="caption">VOICE &amp; TONE</span>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Tone attributes */}
+      {/* ════════════════════════════════════════════
+          6. Brand Voice
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="💬"
+          title="Brand Voice"
+          subtitle="Tone, style and language guidelines"
+          onEdit={() => {}}
+        />
+
+        {/* Tone tags */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          {brandVoice.tone.map((t) => (
+            <span
+              key={t}
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: ink,
+                backgroundColor: 'rgba(206,191,250,0.30)',
+                padding: '5px 14px',
+                borderRadius: 20,
+              }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+
+        {/* Writing style */}
+        <p style={{ fontSize: 14, fontWeight: 300, color: muted64, marginBottom: 20 }}>
+          {brandVoice.style}
+        </p>
+
+        {/* Word chips */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
-            <div className="space-y-4">
-              {brandVoice.tone.map((t) => {
-                const intensity = toneIntensities[t] ?? 5
-                return (
-                  <div key={t}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span style={{ fontSize: 14, fontWeight: 500 }} className="text-ink">
-                        {t}
-                      </span>
-                      <span className="font-mono text-muted" style={{ fontSize: 13 }}>
-                        {intensity}/10
-                      </span>
-                    </div>
-                    <div className="bg-border rounded-full" style={{ height: 6 }}>
-                      <div
-                        className="bg-ink rounded-full"
-                        style={{ height: 6, width: `${intensity * 10}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
+            <span style={monoLabel}>PREFERRED WORDS</span>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {brandVoice.preferred.map((w) => (
+                <span
+                  key={w}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 500,
+                    padding: '3px 10px',
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(74,124,89,0.10)',
+                    color: green,
+                  }}
+                >
+                  {w}
+                </span>
+              ))}
             </div>
-            <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted mt-6">
-              {brandVoice.style}
+          </div>
+          <div>
+            <span style={monoLabel}>WORDS TO AVOID</span>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {brandVoice.avoid.map((w) => (
+                <span
+                  key={w}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 500,
+                    padding: '3px 10px',
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(233,69,96,0.10)',
+                    color: red,
+                  }}
+                >
+                  {w}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Examples */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Good example */}
+          <div
+            style={{
+              backgroundColor: 'rgba(35,31,35,0.02)',
+              borderRadius: 12,
+              borderLeft: `4px solid ${green}`,
+              padding: 16,
+            }}
+          >
+            <span style={{ ...monoLabel, color: green }}>DO</span>
+            <p style={{ fontSize: 14, fontWeight: 300, color: ink, marginTop: 6, marginBottom: 0 }}>
+              {brandVoice.goodExample}
             </p>
           </div>
 
-          {/* Right: Examples & word tags */}
-          <div className="space-y-4">
-            {/* Good example */}
-            <div
-              className="bg-surface rounded-xl p-4 border-l-4 border-signal-green"
-            >
-              <span className="caption text-signal-green">DO</span>
-              <p style={{ fontSize: 14, fontWeight: 400 }} className="text-ink mt-1">
-                {brandVoice.goodExample}
-              </p>
-            </div>
-
-            {/* Bad example */}
-            <div
-              className="bg-surface rounded-xl p-4 border-l-4 border-signal-red"
-            >
-              <span className="caption text-signal-red">DON&apos;T</span>
-              <p
-                style={{ fontSize: 14, fontWeight: 400, textDecoration: 'line-through' }}
-                className="text-muted mt-1"
-              >
-                {brandVoice.badExample}
-              </p>
-            </div>
-
-            {/* Preferred words */}
-            <div>
-              <span className="caption">Preferred</span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {brandVoice.preferred.map((w) => (
-                  <span
-                    key={w}
-                    className="rounded-md px-2 py-0.5"
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 500,
-                      backgroundColor: 'rgba(26, 135, 84, 0.1)',
-                      color: '#1a8754',
-                    }}
-                  >
-                    {w}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Words to avoid */}
-            <div>
-              <span className="caption">Avoid</span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {brandVoice.avoid.map((w) => (
-                  <span
-                    key={w}
-                    className="rounded-md px-2 py-0.5"
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 500,
-                      backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                      color: '#dc3545',
-                    }}
-                  >
-                    {w}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. Imagery Style ── */}
-      <section className="py-16 border-t border-border">
-        <span className="caption">IMAGERY</span>
-        <div className="mt-6 bg-surface rounded-xl p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Photography */}
-            <div>
-              <p style={{ fontSize: 18, fontWeight: 600 }} className="text-ink mb-3">
-                Photography
-              </p>
-              <ul className="space-y-1.5">
-                {imageryStyle.photography.map((item) => (
-                  <li
-                    key={item}
-                    style={{ fontSize: 14, fontWeight: 400 }}
-                    className="text-muted flex items-start gap-2"
-                  >
-                    <span className="mt-1.5 w-1 h-1 rounded-full bg-ink/30 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Illustration */}
-            <div>
-              <p style={{ fontSize: 18, fontWeight: 600 }} className="text-ink mb-3">
-                Illustration
-              </p>
-              <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted">
-                {imageryStyle.illustration}
-              </p>
-            </div>
-
-            {/* Color treatment */}
-            <div>
-              <p style={{ fontSize: 18, fontWeight: 600 }} className="text-ink mb-3">
-                Color Treatment
-              </p>
-              <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted">
-                {imageryStyle.colorTreatment}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 8. Figma Analysis ── */}
-      <section className="py-16 border-t border-border">
-        <span className="caption">FIGMA ANALYSIS</span>
-
-        {/* Connection banner */}
-        <div className="mt-6 bg-surface rounded-xl p-5 flex items-center gap-3">
-          <AlertCircle size={18} strokeWidth={1.5} className="text-muted shrink-0" />
-          <p style={{ fontSize: 14, fontWeight: 400 }} className="text-muted flex-1">
-            Connect the SocialPaint Figma plugin to analyze your design files
-          </p>
-          <button
-            className="border border-border bg-transparent h-10 px-4 rounded-lg text-ink hover:border-ink/20 transition-colors shrink-0 flex items-center gap-2"
-            style={{ fontSize: 14, fontWeight: 500, transitionDuration: '120ms' }}
+          {/* Bad example */}
+          <div
+            style={{
+              backgroundColor: 'rgba(35,31,35,0.02)',
+              borderRadius: 12,
+              borderLeft: `4px solid ${red}`,
+              padding: 16,
+            }}
           >
-            <Figma size={16} strokeWidth={1.5} />
-            Connect
-          </button>
+            <span style={{ ...monoLabel, color: red }}>DON&apos;T</span>
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 300,
+                color: muted48,
+                marginTop: 6,
+                marginBottom: 0,
+                textDecoration: 'line-through',
+              }}
+            >
+              {brandVoice.badExample}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          7. Imagery Style
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="📷"
+          title="Imagery Style"
+          subtitle="Visual direction for photography and illustration"
+          onEdit={() => {}}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+          {/* Photography Direction */}
+          <div>
+            <span style={monoLabel}>PHOTOGRAPHY DIRECTION</span>
+            <ul style={{ paddingLeft: 16, margin: '6px 0 0' }}>
+              {imageryStyle.photography.map((item) => (
+                <li key={item} style={{ fontSize: 15, fontWeight: 300, color: ink, marginBottom: 2 }}>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Illustration Style */}
+          <div>
+            <span style={monoLabel}>ILLUSTRATION STYLE</span>
+            <p style={{ fontSize: 15, fontWeight: 300, color: ink, marginTop: 6, marginBottom: 0 }}>
+              {imageryStyle.illustration}
+            </p>
+          </div>
+
+          {/* Color Treatment */}
+          <div>
+            <span style={monoLabel}>COLOR TREATMENT</span>
+            <p style={{ fontSize: 15, fontWeight: 300, color: ink, marginTop: 6, marginBottom: 0 }}>
+              {imageryStyle.colorTreatment}
+            </p>
+          </div>
+
+          {/* Composition Notes */}
+          <div>
+            <span style={monoLabel}>COMPOSITION NOTES</span>
+            <p style={{ fontSize: 15, fontWeight: 300, color: ink, marginTop: 6, marginBottom: 0 }}>
+              Prefer asymmetric layouts with generous whitespace. Subjects off-center with natural framing.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          8. Figma Plugin Analysis
+      ════════════════════════════════════════════ */}
+      <div style={cardStyle} className="mb-6">
+        <SectionHeader
+          icon="◈"
+          title="Figma Plugin Analysis"
+          subtitle="Design file pattern detection"
+          onEdit={() => {}}
+          editLabel="Settings"
+        />
+
+        {/* Connection status */}
+        <div className="flex items-center gap-2 mb-5">
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: green,
+              display: 'inline-block',
+            }}
+          />
+          <span style={{ fontSize: 13, fontWeight: 400, color: muted64 }}>
+            Figma plugin connected — {figmaAnalyses.length} designs analyzed
+          </span>
         </div>
 
-        {/* Scrollable analysis strip */}
-        <div className="mt-6 flex overflow-x-auto gap-4 pb-2">
+        {/* 3-col grid of figma entries */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {figmaAnalyses.map((a) => (
             <div
               key={a.id}
-              className="bg-surface rounded-xl p-4 shrink-0"
-              style={{ minWidth: 280 }}
+              style={{
+                backgroundColor: 'rgba(35,31,35,0.03)',
+                borderRadius: 12,
+              }}
+              className="p-4"
             >
               {/* Thumbnail placeholder */}
               <div
-                className="rounded-lg w-full"
                 style={{
-                  height: 160,
+                  height: 100,
+                  borderRadius: 8,
                   background: `linear-gradient(135deg, ${a.colors[0] ?? '#ccc'}, ${a.colors[1] ?? '#eee'}, ${a.colors[2] ?? '#fff'})`,
                 }}
               />
 
               {/* Date */}
-              <p className="font-mono text-muted mt-3" style={{ fontSize: 13 }}>
+              <p
+                style={{
+                  fontFamily: 'Fragment Mono, monospace',
+                  fontSize: 11,
+                  color: muted48,
+                  marginTop: 10,
+                  marginBottom: 6,
+                }}
+              >
                 {a.date}
               </p>
 
-              {/* Detected colors */}
-              <div className="flex items-center gap-1.5 mt-2">
-                {a.colors.map((c, i) => (
-                  <span
-                    key={i}
-                    className="rounded-full"
-                    style={{ width: 16, height: 16, backgroundColor: c }}
-                  />
-                ))}
+              {/* Pattern tags */}
+              <div className="flex flex-wrap gap-1 mb-2">
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    padding: '2px 8px',
+                    borderRadius: 20,
+                    backgroundColor: 'rgba(206,191,250,0.25)',
+                    color: ink,
+                  }}
+                >
+                  {a.layout.split(' ')[0]}
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    padding: '2px 8px',
+                    borderRadius: 20,
+                    backgroundColor: 'rgba(35,31,35,0.06)',
+                    color: muted64,
+                  }}
+                >
+                  {a.mood}
+                </span>
               </div>
-
-              {/* Typography */}
-              <div className="mt-2">
-                {a.typography.map((t) => (
-                  <p key={t} style={{ fontSize: 13, fontWeight: 400 }} className="text-muted">
-                    {t}
-                  </p>
-                ))}
-              </div>
-
-              {/* Layout */}
-              <p style={{ fontSize: 12, fontWeight: 500 }} className="text-ink mt-2">
-                {a.layout}
-              </p>
-
-              {/* Mood */}
-              <p style={{ fontSize: 12, fontWeight: 400 }} className="text-muted mt-0.5">
-                {a.mood}
-              </p>
 
               {/* Confidence */}
-              <div className="mt-3 flex items-center gap-2">
-                <span className="font-mono text-ink" style={{ fontSize: 13, fontWeight: 500 }}>
-                  {a.confidence}%
-                </span>
-                <div className="flex-1 bg-border rounded-full" style={{ height: 4 }}>
+              <div className="flex items-center gap-2">
+                <div
+                  style={{
+                    flex: 1,
+                    height: 4,
+                    borderRadius: 2,
+                    backgroundColor: 'rgba(35,31,35,0.06)',
+                  }}
+                >
                   <div
-                    className="bg-ink rounded-full"
-                    style={{ height: 4, width: `${a.confidence}%` }}
+                    style={{
+                      height: 4,
+                      borderRadius: 2,
+                      width: `${a.confidence}%`,
+                      backgroundColor: purple,
+                    }}
                   />
                 </div>
+                <span
+                  style={{
+                    fontFamily: 'Fragment Mono, monospace',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: ink,
+                  }}
+                >
+                  {a.confidence}%
+                </span>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </div>
     </div>
   )
 }

@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #fafaf9;
-  --color-surface: #f3f3f2;
-  --color-ink: #0f0f0f;
-  --color-rail: #0f0f0f;
+  --color-paper: #f7f6f5;
+  --color-surface: #ffffff;
+  --color-ink: #231f23;
+  --color-rail: #ffffff;
   --color-accent: #2d5bf6;
   --color-accent-light: rgba(45, 91, 246, 0.06);
-  --color-signal-green: #1a8754;
-  --color-signal-red: #dc3545;
+  --color-signal-green: #4a7c59;
+  --color-signal-red: #e94560;
   --color-signal-amber: #d97706;
-  --color-border: rgba(15, 15, 15, 0.06);
-  --color-border-hover: rgba(15, 15, 15, 0.12);
-  --color-muted: rgba(15, 15, 15, 0.45);
-  --color-subtle: rgba(15, 15, 15, 0.03);
+  --color-border: rgba(35, 31, 35, 0.08);
+  --color-border-hover: rgba(35, 31, 35, 0.16);
+  --color-muted: rgba(35, 31, 35, 0.48);
+  --color-subtle: rgba(35, 31, 35, 0.04);
 
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Fragment Mono', ui-monospace, monospace;
@@ -32,11 +32,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   line-height: 1.57;
-  color: #0f0f0f;
+  color: #231f23;
 }
 
 body {
-  background-color: #fafaf9;
+  background-color: #f7f6f5;
 }
 
 .font-mono {
@@ -44,11 +44,12 @@ body {
 }
 
 .caption {
+  font-family: 'Fragment Mono', ui-monospace, monospace;
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.8px;
+  font-weight: 400;
+  letter-spacing: 0.75px;
   text-transform: uppercase;
-  color: rgba(15, 15, 15, 0.4);
+  color: rgba(35, 31, 35, 0.48);
 }
 
 ::-webkit-scrollbar {
@@ -59,18 +60,18 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 15, 15, 0.1);
+  background: rgba(35, 31, 35, 0.1);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 15, 15, 0.2);
+  background: rgba(35, 31, 35, 0.2);
 }
 
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
-  background: rgba(15, 15, 15, 0.08);
+  background: rgba(35, 31, 35, 0.08);
   border-radius: 2px;
   outline: none;
 }
@@ -79,6 +80,6 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #0f0f0f;
+  background: #231f23;
   cursor: pointer;
 }
