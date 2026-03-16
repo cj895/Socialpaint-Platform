@@ -212,7 +212,7 @@ export default function Pulse() {
               <CartesianGrid vertical={false} stroke="rgba(35,31,35,0.06)" />
               <XAxis
                 dataKey="name"
-                tick={{ fontFamily: 'Fragment Mono, monospace', fontSize: 11, fill: MUTED_48, textTransform: 'uppercase' } as React.CSSProperties}
+                tick={{ fontFamily: 'Fragment Mono, monospace', fontSize: 11, fill: MUTED_48 } as Record<string, unknown>}
                 axisLine={false}
                 tickLine={false}
               />
@@ -374,7 +374,7 @@ export default function Pulse() {
               <CartesianGrid vertical={false} stroke="rgba(35,31,35,0.06)" />
               <XAxis
                 dataKey="name"
-                tick={{ fontFamily: 'Fragment Mono, monospace', fontSize: 10, fill: MUTED_48 } as React.CSSProperties}
+                tick={{ fontFamily: 'Fragment Mono, monospace', fontSize: 10, fill: MUTED_48 } as Record<string, unknown>}
                 axisLine={false}
                 tickLine={false}
               />
